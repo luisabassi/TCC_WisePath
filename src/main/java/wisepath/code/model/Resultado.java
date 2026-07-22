@@ -2,6 +2,7 @@ package wisepath.code.model;
 
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -41,7 +42,7 @@ public class Resultado {
     @JoinColumn(name = "idMapa", nullable = false)
     private MapaMental mapaMental;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(
         name = "resultado_profissao",
         joinColumns = @JoinColumn(name = "idResultado"),
