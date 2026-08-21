@@ -5,7 +5,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import wisepath.code.model.Usuario;
+import wisepath.code.entity.Usuario;
 import wisepath.code.repository.UsuarioRepository;
 
 @Service

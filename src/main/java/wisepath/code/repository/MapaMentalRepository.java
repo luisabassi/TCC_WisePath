@@ -2,7 +2,7 @@ package wisepath.code.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import wisepath.code.model.MapaMental;
+import wisepath.code.entity.MapaMental;
 
 public interface MapaMentalRepository extends JpaRepository<MapaMental, Long> {
 }

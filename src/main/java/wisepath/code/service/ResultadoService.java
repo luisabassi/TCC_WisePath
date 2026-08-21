@@ -6,10 +6,10 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import wisepath.code.model.Chat;
-import wisepath.code.model.MapaMental;
-import wisepath.code.model.Profissao;
-import wisepath.code.model.Resultado;
+import wisepath.code.entity.Chat;
+import wisepath.code.entity.MapaMental;
+import wisepath.code.entity.Profissao;
+import wisepath.code.entity.Resultado;
 import wisepath.code.repository.ResultadoRepository;
 import wisepath.code.dto.SugestaoProfissao;
 

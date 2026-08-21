@@ -4,8 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import wisepath.code.model.Chat;
-import wisepath.code.model.Mensagem;
+import wisepath.code.entity.Chat;
+import wisepath.code.entity.Mensagem;
 import wisepath.code.repository.MensagemRepository;
 
 @Service

@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import wisepath.code.model.Profissao;
+import wisepath.code.entity.Profissao;
 import wisepath.code.repository.ProfissaoRepository;
 
 @Service

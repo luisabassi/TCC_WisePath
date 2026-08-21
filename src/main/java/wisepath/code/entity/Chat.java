@@ -1,4 +1,4 @@
-package wisepath.code.model;
+package wisepath.code.entity;
 
 import java.time.LocalDateTime;
 import java.util.List;

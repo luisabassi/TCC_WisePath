@@ -1,4 +1,4 @@
-package wisepath.code.model;
+package wisepath.code.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
