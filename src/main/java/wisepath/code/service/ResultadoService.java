@@ -6,12 +6,12 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import wisepath.code.dto.ProfissaoDTO;
 import wisepath.code.entity.Chat;
 import wisepath.code.entity.MapaMental;
 import wisepath.code.entity.Profissao;
 import wisepath.code.entity.Resultado;
 import wisepath.code.repository.ResultadoRepository;
-import wisepath.code.dto.SugestaoProfissao;
 
 @Service
 public class ResultadoService {
@@ -28,23 +28,30 @@ public class ResultadoService {
 
 
     @Transactional
-    public Resultado gerarResultado(Chat chat, String resumo, String jsonMapaMental, List<SugestaoProfissao> sugestoes) {
+    public Resultado gerarResultado(Chat chat, String resumo, String jsonMapaMental, List<ProfissaoDTO> profissaoDTO) {
         if (chat == null) {
-            throw new IllegalArgumentException("O chat e obrigatorio para gerar um resultado.");
+            throw new IllegalArgumentException("O chat é obrigatório para gerar um resultado.");
         }
-        if (sugestoes == null || sugestoes.isEmpty()) {
-            throw new IllegalArgumentException("E necessario informar ao menos uma profissao sugerida.");
+        if (resumo == null || resumo.isBlank()) {
+            throw new IllegalArgumentException("O resumo é obrigatório para gerar um resultado.");
+        }
+        if (profissaoDTO == null || profissaoDTO.isEmpty()) {
+            throw new IllegalArgumentException("É necessário informar ao menos uma profissão sugerida.");
         }
 
         MapaMental mapaMental = mapaMentalService.criarMapaMental(jsonMapaMental);
 
         List<Profissao> profissoes = new ArrayList<>();
-        for (SugestaoProfissao sugestao : sugestoes) {
+        for (ProfissaoDTO dto : profissaoDTO) {
+            if (dto.mediaSalarial() == null) {
+                throw new IllegalArgumentException("A media salarial é obrigatória para cada profissao sugerida.");
+            }
+
             Profissao profissao = profissaoService.buscarOuCriarProfissao(
-                    sugestao.nome(),
-                    sugestao.descricao(),
-                    sugestao.mediaSalarial(),
-                    sugestao.empregabilidade()
+                    dto.nome(),
+                    dto.descricao(),
+                    dto.mediaSalarial(),
+                    dto.empregabilidade()
             );
             profissoes.add(profissao);
         }
@@ -61,7 +68,7 @@ public class ResultadoService {
     @Transactional(readOnly = true)
     public Resultado buscarPorId(Long idResultado) {
         return resultadoRepository.findById(idResultado)
-                .orElseThrow(() -> new IllegalArgumentException("Resultado nao encontrado."));
+                .orElseThrow(() -> new IllegalArgumentException("Resultado não encontrado."));
     }
 
     @Transactional(readOnly = true)
