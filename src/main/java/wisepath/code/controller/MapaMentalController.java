@@ -30,7 +30,7 @@ public class MapaMentalController{
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MapaMental> atualiza3r(@PathVariable Long id, 
+    public ResponseEntity<MapaMental> atualizar(@PathVariable Long id, 
         @RequestBody @Valid MapaMentalDTO dto){
             return ResponseEntity.ok(mapaMentalService.atualizarMapaMental
             (id, dto.jsonMapa()));
