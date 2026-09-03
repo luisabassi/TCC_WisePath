@@ -51,14 +51,10 @@ public class MensagemService{
         mensagemRepository.deleteById(idMensagem);
     }
 
-
-
     public MensagemRepository getMensagemRepository() {
         return mensagemRepository;
     }
-
-
-
+    
     public void setMensagemRepository(MensagemRepository mensagemRepository) {
         this.mensagemRepository = mensagemRepository;
     }

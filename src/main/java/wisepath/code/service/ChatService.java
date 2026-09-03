@@ -65,6 +65,18 @@ public class ChatService {
     }
 
     @Transactional(readOnly = true)
+    public Chat buscarPorNome(String nome) {
+        if (nome == null || nome.trim().isEmpty()) {
+            throw new IllegalArgumentException("Nome do chat inválido.");
+        }
+
+        return chatRepository.findAll().stream()
+                .filter(chat -> chat.getNome() != null && chat.getNome().equalsIgnoreCase(nome.trim()))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Chat não encontrado."));
+    }
+
+    @Transactional(readOnly = true)
     public List<Chat> listarChatsPorUsuario(Long idUsuario){
         return chatRepository.findByUsuarioIdUsuarioOrderByDataCriacaoDesc(idUsuario);
     }

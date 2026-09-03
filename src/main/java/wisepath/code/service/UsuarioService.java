@@ -84,6 +84,14 @@ public class UsuarioService {
 
     }
 
+    @Transactional
+    public void excluirConta(Long idUsuario) {
+        if (!usuarioRepository.existsById(idUsuario)) {
+            throw new IllegalArgumentException("Usuário não encontrado.");
+        }
+        usuarioRepository.deleteById(idUsuario);
+    }
+
     public UsuarioRepository getUsuarioRepository() {
         return usuarioRepository;
     }
