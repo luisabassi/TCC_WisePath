@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import wisepath.code.dto.MapaMentalDTO;
-import wisepath.code.entity.MapaMental;
 import wisepath.code.service.MapaMentalService;
 import wisepath.code.dto.MapaMentalResponseDTO;
 
