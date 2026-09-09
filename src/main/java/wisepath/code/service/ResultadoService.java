@@ -20,7 +20,9 @@ public class ResultadoService {
     private final ProfissaoService profissaoService;
     private final MapaMentalService mapaMentalService;
 
-    public ResultadoService(ResultadoRepository resultadoRepository, ProfissaoService profissaoService, MapaMentalService mapaMentalService) {
+    public ResultadoService(ResultadoRepository resultadoRepository, 
+        ProfissaoService profissaoService, 
+        MapaMentalService mapaMentalService) {
         this.resultadoRepository = resultadoRepository;
         this.profissaoService = profissaoService;
         this.mapaMentalService = mapaMentalService;
@@ -68,7 +70,8 @@ public class ResultadoService {
     @Transactional(readOnly = true)
     public Resultado buscarPorId(Long idResultado) {
         return resultadoRepository.findById(idResultado)
-                .orElseThrow(() -> new IllegalArgumentException("Resultado não encontrado."));
+                .orElseThrow(() -> 
+                new IllegalArgumentException("Resultado não encontrado."));
     }
 
     @Transactional(readOnly = true)

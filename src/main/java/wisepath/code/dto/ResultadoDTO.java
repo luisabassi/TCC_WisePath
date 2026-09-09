@@ -1,16 +1,28 @@
 package wisepath.code.dto;
 
-import java.util.ArrayList;
+import java.util.List;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import wisepath.code.entity.Chat;
-import wisepath.code.entity.MapaMental;
-import wisepath.code.entity.Profissao;
+import wisepath.code.entity.Resultado;
 
 public record ResultadoDTO(
-    @NotBlank String resumo, 
-    @NotNull Chat chat,
-    @NotNull MapaMental mapaMental,
-    @NotNull ArrayList<Profissao> profissoes
-) {}
+    Long idResultado,
+    String resumo,
+    Long idChat,
+    MapaMentalResponseDTO mapaMental,
+    List<ProfissaoResponseDTO> profissoes
+) {
+    public static ResultadoDTO fromEntity(Resultado resultado) {
+        List<ProfissaoResponseDTO> profissoes = resultado.getProfissoes()
+                .stream()
+                .map(ProfissaoResponseDTO::fromEntity)
+                .toList();
+
+        return new ResultadoDTO(
+            resultado.getIdResultado(),
+            resultado.getResumo(),
+            resultado.getChat() != null ? resultado.getChat().getIdChat() : null,
+            MapaMentalResponseDTO.fromEntity(resultado.getMapaMental()),
+            profissoes
+        );
+    }
+}

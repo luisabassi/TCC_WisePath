@@ -8,7 +8,9 @@ import jakarta.validation.Valid;
 import wisepath.code.dto.LoginDTO;
 import wisepath.code.dto.UsuarioDTO;
 import wisepath.code.dto.UsuarioResponseDTO;
+import wisepath.code.dto.LoginResponseDTO;
 import wisepath.code.entity.Usuario;
+import wisepath.code.security.JwtService;
 import wisepath.code.service.UsuarioService;
 
 
@@ -16,11 +18,12 @@ import wisepath.code.service.UsuarioService;
 @RequestMapping("/users")
 public class UsuarioController {
     private final UsuarioService usuarioService;  
+    private final JwtService jwtService;
 
-    public UsuarioController(UsuarioService usuarioService){
+    public UsuarioController(UsuarioService usuarioService, JwtService jwtService){
         this.usuarioService = usuarioService;
+        this.jwtService = jwtService;
     }
-    
 
     @PostMapping
     public ResponseEntity<UsuarioResponseDTO> cadastrar (@RequestBody @Valid UsuarioDTO dto){
@@ -39,9 +42,10 @@ public class UsuarioController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<UsuarioResponseDTO> autenticar(@RequestBody @Valid LoginDTO dto){
+    public ResponseEntity<LoginResponseDTO> autenticar(@RequestBody @Valid LoginDTO dto){
         Usuario usuario = usuarioService.autenticar(dto.email(), dto.senha());
-        return ResponseEntity.ok(UsuarioResponseDTO.fromEntity(usuario));
+        String token = jwtService.gerarToken(usuario.getIdUsuario(), usuario.getEmail());
+        return ResponseEntity.ok(LoginResponseDTO.of(usuario, token));
     }
 
      @GetMapping("/{id}")
@@ -51,8 +55,10 @@ public class UsuarioController {
     }
 
      @PutMapping("/{id}")
-    public ResponseEntity<UsuarioResponseDTO> atualizarPerfil(@PathVariable Long id, @RequestBody UsuarioDTO dto){
-        Usuario usuarioAtualizado = usuarioService.atualizarPerfil(id, dto.nome(), dto.email(), dto.senha());
+    public ResponseEntity<UsuarioResponseDTO> atualizarPerfil(@PathVariable Long id,
+         @RequestBody UsuarioDTO dto){
+        Usuario usuarioAtualizado = usuarioService.atualizarPerfil(id,
+             dto.nome(), dto.email(), dto.senha());
         return ResponseEntity.ok(UsuarioResponseDTO.fromEntity(usuarioAtualizado));
     }
 

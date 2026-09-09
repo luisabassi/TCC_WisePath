@@ -47,7 +47,6 @@ public class Chat {
     private Usuario usuario;
 
     public void adicionarResultado(Resultado novoResultado) {
-        novoResultado.setChat(this);
         this.resultados.add(novoResultado);
     }
 

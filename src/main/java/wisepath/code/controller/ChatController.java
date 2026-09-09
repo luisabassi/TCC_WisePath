@@ -8,8 +8,9 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import wisepath.code.dto.ChatDTO;
+import wisepath.code.dto.ChatResponseDTO;
+import wisepath.code.dto.MensagemResponseDTO;
 import wisepath.code.entity.Chat;
-import wisepath.code.entity.Mensagem;
 import wisepath.code.entity.Usuario;
 import wisepath.code.service.ChatService;
 
@@ -23,35 +24,45 @@ public class ChatController {
     }
 
     @PostMapping
-    public ResponseEntity<Chat> criarChat(@AuthenticationPrincipal Usuario usuarioLogado, @RequestBody ChatDTO dto) {
+    public ResponseEntity<ChatResponseDTO> criarChat(@AuthenticationPrincipal Usuario usuarioLogado, 
+        @RequestBody ChatDTO dto) {
         Chat chat = chatService.criarChat(usuarioLogado, dto.nome());
         URI uri = URI.create("/chats/" + chat.getIdChat());
-        return ResponseEntity.created(uri).body(chat);
+        return ResponseEntity.created(uri).body(ChatResponseDTO.fromEntity(chat));
     }
     
     @PutMapping("/{id}")
-    public ResponseEntity<Chat> renomearChat(@PathVariable Long id, @RequestBody ChatDTO dto) {
-        return ResponseEntity.ok(chatService.renomearChat(id, dto.nome()));
+    public ResponseEntity<ChatResponseDTO> renomearChat(@PathVariable Long id,
+         @RequestBody ChatDTO dto) {
+        return ResponseEntity.ok(ChatResponseDTO.fromEntity(chatService.renomearChat(id, dto.nome())));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Chat> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(chatService.buscarPorId(id));
-    }
-
-    @GetMapping("/nome")
-    public ResponseEntity<Chat> buscarPorNome(@RequestBody ChatDTO dto) {
-        return ResponseEntity.ok(chatService.buscarPorNome(dto.nome()));
+    public ResponseEntity<ChatResponseDTO> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(ChatResponseDTO.fromEntity(chatService.buscarPorId(id)));
     }
 
     @GetMapping("/usuario/{id}")
-    public ResponseEntity<List<Chat>> listarChatPorUsuario(@PathVariable Long id) {
-        return ResponseEntity.ok(chatService.listarChatsPorUsuario(id));
+    public ResponseEntity<ChatResponseDTO> buscarPorNome(@RequestParam String nome) {
+      return ResponseEntity.ok(ChatResponseDTO.fromEntity(chatService.buscarPorNome(nome)));
+    }
+
+    @GetMapping("/usuario/{id}")
+    public ResponseEntity<List<ChatResponseDTO>> listarChatPorUsuario(@PathVariable Long id) {
+        List<ChatResponseDTO> chats = chatService.listarChatsPorUsuario(id)
+             .stream()
+             .map(ChatResponseDTO::fromEntity)
+             .toList();
+        return ResponseEntity.ok(chats);
     }
 
     @GetMapping("/{id}/mensagens")
-    public ResponseEntity<List<Mensagem>> listarMensagens(@PathVariable Long id) {
-        return ResponseEntity.ok(chatService.listarMensagens(id));
+    public ResponseEntity<List<MensagemResponseDTO>> listarMensagens(@PathVariable Long id) {
+         List<MensagemResponseDTO> mensagens = chatService.listarMensagens(id)
+             .stream()
+             .map(MensagemResponseDTO::fromEntity)
+             .toList();
+        return ResponseEntity.ok(mensagens);
     }
 
     @DeleteMapping("/{id}")
@@ -59,6 +70,4 @@ public class ChatController {
         chatService.deletarChat(id);
         return ResponseEntity.noContent().build();
     }
-
-    //ir dps para o usuarioController e usuarioService p/ colocar os métodos de excluir conta pq eu esqueci (poronguice que fala?)
 }

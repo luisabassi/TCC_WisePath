@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import wisepath.code.dto.MapaMentalDTO;
 import wisepath.code.entity.MapaMental;
 import wisepath.code.service.MapaMentalService;
+import wisepath.code.dto.MapaMentalResponseDTO;
 
 
 @RestController
@@ -25,15 +26,16 @@ public class MapaMentalController{
     }  
     
     @GetMapping("/{id}")
-    public ResponseEntity<MapaMental> buscarPorId(@PathVariable Long id){
-        return ResponseEntity.ok(mapaMentalService.buscarPorId(id));
+    public ResponseEntity<MapaMentalResponseDTO> buscarPorId(@PathVariable Long id){
+        return ResponseEntity.ok(MapaMentalResponseDTO.
+            fromEntity(mapaMentalService.buscarPorId(id)));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MapaMental> atualizar(@PathVariable Long id, 
+    public ResponseEntity<MapaMentalResponseDTO> atualizar(@PathVariable Long id, 
         @RequestBody @Valid MapaMentalDTO dto){
-            return ResponseEntity.ok(mapaMentalService.atualizarMapaMental
-            (id, dto.jsonMapa()));
+            return ResponseEntity.ok(MapaMentalResponseDTO.
+                fromEntity(mapaMentalService.atualizarMapaMental(id, dto.jsonMapa())));
 
     }
 

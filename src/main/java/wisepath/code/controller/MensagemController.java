@@ -8,17 +8,20 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import wisepath.code.dto.EditarMensagemDTO;
 import wisepath.code.dto.NovaMensagemDTO;
+import wisepath.code.dto.MensagemResponseDTO;
 import wisepath.code.entity.Chat;
 import wisepath.code.entity.Mensagem;
 import wisepath.code.service.ChatService;
 import wisepath.code.service.MensagemService;
 
 @RestController
+@RequestMapping("/chats/{idChat}/mensagens")
 public class MensagemController {
     private final MensagemService mensagemService; 
     private final ChatService chatService;
@@ -28,21 +31,27 @@ public class MensagemController {
         this.chatService = chatService; 
     }
 
-    @PostMapping("/chats/{idChat}/mensagens")
-    public ResponseEntity<Mensagem> enviarMensagem(@PathVariable Long idChat, @RequestBody @Valid NovaMensagemDTO dto){
+    @PostMapping
+    public ResponseEntity<MensagemResponseDTO> enviarMensagem(@PathVariable Long idChat, 
+        @RequestBody @Valid NovaMensagemDTO dto){
         Chat chat = chatService.buscarPorId(idChat);
-        Mensagem mensagem = mensagemService.enviarMensagem(chat, dto.conteudo(), dto.autor());
+        Mensagem mensagem = mensagemService.
+        enviarMensagem(chat, dto.conteudo(), dto.autor());
 
-        URI uri = URI.create("/mensagens/" + mensagem.getIdMensagem());
-        return ResponseEntity.created(uri).body(mensagem);
+        URI uri = URI.create("/chats/" + idChat + "/mensagens/" + mensagem.getIdMensagem());;
+        return ResponseEntity.created(uri).
+        body(MensagemResponseDTO.fromEntity(mensagem));
     }
 
-    @PutMapping("/mensagens/{id}")
-    public ResponseEntity<Mensagem> editarMensagem(@PathVariable Long id, @RequestBody @Valid EditarMensagemDTO dto){
-        return ResponseEntity.ok(mensagemService.editarMensagem(id, dto.conteudo()));
+    @PutMapping("/{idMensagem}")
+    public ResponseEntity<MensagemResponseDTO> editarMensagem(@PathVariable Long id, 
+        @RequestBody @Valid EditarMensagemDTO dto){
+        return ResponseEntity.ok(MensagemResponseDTO.
+            fromEntity(mensagemService.editarMensagem(id, dto.conteudo())));
+        
     }
 
-    @DeleteMapping("/mensagens/{id}")
+    @DeleteMapping("/{idMensagem}")
     public ResponseEntity<Void> deletarMensagem(@PathVariable Long idMensagem){
         mensagemService.deletarMensagem(idMensagem);
         return ResponseEntity.noContent().build();
