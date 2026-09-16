@@ -4,15 +4,23 @@ import java.net.URI;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.validation.Valid;
+import wisepath.code.dto.AtualizarUsuarioDTO;
 import wisepath.code.dto.LoginDTO;
+import wisepath.code.dto.LoginResponseDTO;
 import wisepath.code.dto.UsuarioDTO;
 import wisepath.code.dto.UsuarioResponseDTO;
-import wisepath.code.dto.LoginResponseDTO;
 import wisepath.code.entity.Usuario;
 import wisepath.code.security.JwtService;
 import wisepath.code.service.UsuarioService;
@@ -65,7 +73,7 @@ public class UsuarioController {
 
     @PutMapping("/{id}")
     public ResponseEntity<UsuarioResponseDTO> atualizarPerfil(@AuthenticationPrincipal Usuario usuarioLogado,
-        @PathVariable Long id, @RequestBody UsuarioDTO dto){
+        @PathVariable Long id, @RequestBody @Valid AtualizarUsuarioDTO dto){
 
         verificarProprioUsuario(id, usuarioLogado);
         Usuario usuarioAtualizado = usuarioService.atualizarPerfil(id,

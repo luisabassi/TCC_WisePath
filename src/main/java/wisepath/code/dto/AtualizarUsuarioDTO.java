@@ -1,9 +1,10 @@
 package wisepath.code.dto;
 
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Size;
 
 public record AtualizarUsuarioDTO(
     String nome,
     @Email String email,
-    String senha
+    @Size(min = 8, max = 20) String senha
 ) {}

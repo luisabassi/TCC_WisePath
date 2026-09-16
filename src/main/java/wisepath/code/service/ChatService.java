@@ -72,9 +72,7 @@ public class ChatService {
             throw new IllegalArgumentException("Nome do chat inválido.");
         }
 
-        return chatRepository.findAll().stream()
-                .filter(chat -> chat.getNome() != null && chat.getNome().equalsIgnoreCase(nome.trim()))
-                .findFirst()
+        return chatRepository.findFirstByNomeIgnoreCase(nome.trim())
                 .orElseThrow(() -> new IllegalArgumentException("Chat não encontrado."));
     }
 
