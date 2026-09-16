@@ -25,6 +25,12 @@ public class MensagemService{
         return mensagemRepository.save(mensagem);
     }
 
+    @Transactional(readOnly = true)
+    public Mensagem buscarPorId(Long idMensagem){
+        return mensagemRepository.findById(idMensagem)
+                .orElseThrow(() -> new IllegalArgumentException("Mensagem não encontrada."));
+    }
+
     @Transactional
     public Mensagem editarMensagem(Long idMensagem, String novoConteudo){
         if (novoConteudo == null || novoConteudo.isBlank()) {

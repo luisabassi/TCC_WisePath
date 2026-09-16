@@ -2,6 +2,8 @@ package wisepath.code.controller;
 
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,11 +11,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import wisepath.code.dto.AnaliseIADTO;
 import wisepath.code.dto.ResultadoDTO;
 import wisepath.code.entity.Chat;
 import wisepath.code.entity.Resultado;
+import wisepath.code.entity.Usuario;
 import wisepath.code.service.ChatService;
 import wisepath.code.service.GeminiService;
 import wisepath.code.service.ResultadoService;
@@ -36,12 +40,13 @@ public class ResultadoController {
     }
 
     @PostMapping 
-    public ResponseEntity<ResultadoDTO> gerarResultado(@PathVariable Long idChat){
-        Chat chat = chatService.buscarPorId(idChat);
+    public ResponseEntity<ResultadoDTO> gerarResultado(@AuthenticationPrincipal Usuario usuarioLogado,
+        @PathVariable Long idChat){
+        Chat chat = chatService.buscarChatDoUsuario(idChat, usuarioLogado.getIdUsuario());
 
         AnaliseIADTO analise = geminiService.analisarChat(chat);
 
-         Resultado resultado = resultadoService.gerarResultado(
+        Resultado resultado = resultadoService.gerarResultado(
                 chat,
                 analise.resumo(),
                 analise.jsonMapaMental(),
@@ -51,14 +56,21 @@ public class ResultadoController {
         return ResponseEntity.ok(ResultadoDTO.fromEntity(resultado));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<ResultadoDTO> buscarPorId(@PathVariable Long idChat, @PathVariable Long idResultado){
-        Resultado resultado = resultadoService.buscarPorId(idResultado);
+     @GetMapping("/{idResultado}")
+    public ResponseEntity<ResultadoDTO> buscarPorId(@AuthenticationPrincipal Usuario usuarioLogado,
+        @PathVariable Long idChat, @PathVariable Long idResultado) {
+
+        Resultado resultado = resultadoService.buscarResultadoDoUsuario(idResultado, usuarioLogado.getIdUsuario());
+        garantirResultadoPertenceAoChat(resultado, idChat);
+
         return ResponseEntity.ok(ResultadoDTO.fromEntity(resultado));
     }
 
-    @GetMapping
-    public ResponseEntity<List<ResultadoDTO>> listarPorChat(@PathVariable Long idChat) {
+     @GetMapping
+    public ResponseEntity<List<ResultadoDTO>> listarPorChat(@AuthenticationPrincipal Usuario usuarioLogado,
+        @PathVariable Long idChat) {
+        chatService.buscarChatDoUsuario(idChat, usuarioLogado.getIdUsuario());
+ 
         List<ResultadoDTO> resultados = resultadoService.listarPorChat(idChat)
                 .stream()
                 .map(ResultadoDTO::fromEntity)
@@ -67,10 +79,20 @@ public class ResultadoController {
         return ResponseEntity.ok(resultados);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletarResultado(@PathVariable Long id){
-        resultadoService.deletar(id);
+    @DeleteMapping("/{idResultado}")
+    public ResponseEntity<Void> deletar(@AuthenticationPrincipal Usuario usuarioLogado,
+        @PathVariable Long idChat, @PathVariable Long idResultado) {
+
+        Resultado resultado = resultadoService.buscarResultadoDoUsuario(idResultado, usuarioLogado.getIdUsuario());
+        garantirResultadoPertenceAoChat(resultado, idChat);
+        resultadoService.deletar(idResultado);
+
         return ResponseEntity.noContent().build();
     }
-    
+
+    private void garantirResultadoPertenceAoChat(Resultado resultado, Long idChat) {
+        if (!resultado.getChat().getIdChat().equals(idChat)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Resultado não encontrado neste chat.");
+        }
+    }
 }

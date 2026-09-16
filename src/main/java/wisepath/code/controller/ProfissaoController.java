@@ -10,11 +10,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import jakarta.validation.Valid;
 import wisepath.code.dto.ProfissaoDTO;
 import wisepath.code.dto.ProfissaoResponseDTO;
 import wisepath.code.entity.Resultado;
+import wisepath.code.entity.Usuario;
 import wisepath.code.service.ProfissaoService;
 import wisepath.code.service.ResultadoService;
 
@@ -40,7 +42,8 @@ public class ProfissaoController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ProfissaoResponseDTO> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(ProfissaoResponseDTO.fromEntity(profissaoService.buscarPorId(id)));
+        return ResponseEntity.ok(ProfissaoResponseDTO.fromEntity(
+            profissaoService.buscarPorId(id)));
     }
 
     @GetMapping("/busca")
@@ -53,8 +56,10 @@ public class ProfissaoController {
     }
 
     @GetMapping("/resultado/{idResultado}")
-    public ResponseEntity<List<ProfissaoResponseDTO>> listarPorResultado(@PathVariable Long idResultado) {
-        Resultado resultado = resultadoService.buscarPorId(idResultado);
+    public ResponseEntity<List<ProfissaoResponseDTO>> listarPorResultado(
+        @AuthenticationPrincipal Usuario usuarioLogado,
+        @PathVariable Long idResultado) {
+        Resultado resultado = resultadoService.buscarResultadoDoUsuario(idResultado, usuarioLogado.getIdUsuario());
         List<ProfissaoResponseDTO> profissoes = resultado.getProfissoes()
                 .stream()
                 .map(ProfissaoResponseDTO::fromEntity)

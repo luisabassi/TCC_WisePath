@@ -3,8 +3,10 @@ package wisepath.code.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import wisepath.code.dto.ProfissaoDTO;
 import wisepath.code.entity.Chat;
@@ -86,4 +88,26 @@ public class ResultadoService {
         }
         resultadoRepository.deleteById(idResultado);
     }
+
+    @Transactional(readOnly = true)
+    public Resultado buscarResultadoDoUsuario(Long idResultado, Long idUsuarioLogado) {
+        Resultado resultado = buscarPorId(idResultado);
+        if (!resultado.getChat().getUsuario().getIdUsuario().equals(idUsuarioLogado)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Você não tem permissão para acessar este resultado.");
+        }
+        return resultado;
+    }
+
+    @Transactional(readOnly = true)
+    public Resultado buscarResultadoDoUsuarioPorMapaMental(Long idMapaMental, Long idUsuarioLogado) {
+        Resultado resultado = resultadoRepository.findByMapaMentalIdMapaMental(idMapaMental)
+                .orElseThrow(() -> new IllegalArgumentException("Mapa mental não encontrado."));
+        if (!resultado.getChat().getUsuario().getIdUsuario().equals(idUsuarioLogado)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Você não tem permissão para acessar este mapa mental.");
+        }
+        return resultado;
+    }
+ 
 }

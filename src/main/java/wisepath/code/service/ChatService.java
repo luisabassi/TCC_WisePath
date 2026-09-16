@@ -4,8 +4,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import wisepath.code.entity.Chat;
 import wisepath.code.entity.Mensagem;
@@ -93,5 +95,18 @@ public class ChatService {
         }
         
         chatRepository.deleteById(idChat);
+    }
+
+    public Chat validarPropriedade(Chat chat, Long idUsuarioLogado) {
+        if (!chat.getUsuario().getIdUsuario().equals(idUsuarioLogado)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Você não tem permissão para acessar este chat.");
+        }
+        return chat;
+    }
+
+    @Transactional(readOnly = true)
+    public Chat buscarChatDoUsuario(Long idChat, Long idUsuarioLogado) {
+        return validarPropriedade(buscarPorId(idChat), idUsuarioLogado);
     }
 }
