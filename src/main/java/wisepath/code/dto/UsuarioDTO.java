@@ -1,9 +1,11 @@
 package wisepath.code.dto;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 
 public record UsuarioDTO(
     @NotBlank String nome, 
     @NotBlank @Email String email,
-    @Size(min = 8, max = 20) String senha
+    @NotBlank @Size(min = 8, max = 20) String senha
 ){}

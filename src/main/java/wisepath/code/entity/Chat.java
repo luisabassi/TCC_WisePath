@@ -1,6 +1,7 @@
 package wisepath.code.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.CascadeType;
@@ -37,10 +38,10 @@ public class Chat {
     private LocalDateTime dataCriacao;
 
     @OneToMany(mappedBy = "chat", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private List<Mensagem> mensagens;
+    private List<Mensagem> mensagens = new ArrayList<>();
 
     @OneToMany(mappedBy = "chat", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private List<Resultado> resultados;
+    private List<Resultado> resultados = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "idUsuario", nullable = false)
