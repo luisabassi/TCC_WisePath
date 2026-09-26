@@ -1,6 +1,5 @@
 package wisepath.code.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,10 +11,8 @@ import wisepath.code.repository.UsuarioRepository;
 public class UsuarioService {
 
     private static final int TAMANHO_MINIMO_SENHA = 8;
-
-    @Autowired private UsuarioRepository usuarioRepository;
-    @Autowired private PasswordEncoder passwordEncoder;
-    
+    private final UsuarioRepository usuarioRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
@@ -92,20 +89,8 @@ public class UsuarioService {
         usuarioRepository.deleteById(idUsuario);
     }
 
-    public UsuarioRepository getUsuarioRepository() {
-        return usuarioRepository;
-    }
-
-    public void setUsuarioRepository(UsuarioRepository usuarioRepository) {
-        this.usuarioRepository = usuarioRepository;
-    }
-
     public PasswordEncoder getPasswordEncoder() {
         return passwordEncoder;
     }
 
-    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
-        this.passwordEncoder = passwordEncoder;
-    }
 }
-//@Autowired -> injeção de dependência automática

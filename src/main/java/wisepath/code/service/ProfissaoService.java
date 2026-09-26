@@ -2,7 +2,6 @@ package wisepath.code.service;
 
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,7 +10,7 @@ import wisepath.code.repository.ProfissaoRepository;
 
 @Service
 public class ProfissaoService {
-    @Autowired private ProfissaoRepository profissaoRepository;
+    private final ProfissaoRepository profissaoRepository;
 
     public ProfissaoService(ProfissaoRepository profissaoRepository) {
         this.profissaoRepository = profissaoRepository;
@@ -55,11 +54,9 @@ public class ProfissaoService {
         return profissaoRepository.save(novaProfissao);
     }
 
-    public ProfissaoRepository getProfissaoRepository() {
-        return profissaoRepository;
-    }
 
-     @Transactional
+
+    @Transactional
     public Profissao atualizarProfissao(Long idProfissao,String descricao, Double mediaSalarial, String empregabilidade) {
 
         Profissao profissao = buscarPorId(idProfissao);
@@ -79,11 +76,6 @@ public class ProfissaoService {
         return profissaoRepository.save(profissao);
 
     }
-
-    public void setProfissaoRepository(ProfissaoRepository profissaoRepository) {
-        this.profissaoRepository = profissaoRepository;
-    }
-
     
 
 }

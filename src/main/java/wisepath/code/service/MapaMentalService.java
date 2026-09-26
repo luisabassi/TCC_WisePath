@@ -1,6 +1,5 @@
 package wisepath.code.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -9,7 +8,7 @@ import wisepath.code.repository.MapaMentalRepository;
 
 @Service
 public class MapaMentalService {
-    @Autowired private MapaMentalRepository mapaMentalRepository; 
+    private final MapaMentalRepository mapaMentalRepository; 
 
     public MapaMentalService( MapaMentalRepository mapaMentalRepository){
         this.mapaMentalRepository = mapaMentalRepository;
@@ -53,11 +52,4 @@ public class MapaMentalService {
         mapaMentalRepository.deleteById(idMapaMental);
     }
 
-    public MapaMentalRepository getMapaMentalRepository(){
-        return mapaMentalRepository;
-    }
-
-    public void setMapaMentalRepository(MapaMentalRepository mapaMentalRepository) {
-        this.mapaMentalRepository = mapaMentalRepository;
-    }
 }

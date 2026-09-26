@@ -3,7 +3,6 @@ package wisepath.code.service;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,25 +17,8 @@ import wisepath.code.repository.MensagemRepository;
 @Service
 public class ChatService {
 
-    @Autowired private ChatRepository chatRepository;
-    @Autowired private MensagemRepository mensagemRepository;
-
-
-    public ChatRepository getChatRepository() {
-        return chatRepository;
-    }
-
-    public void setChatRepository(ChatRepository chatRepository) {
-        this.chatRepository = chatRepository;
-    }
-
-    public MensagemRepository getMensagemRepository() {
-        return mensagemRepository;
-    }
-
-    public void setMensagemRepository(MensagemRepository mensagemRepository) {
-        this.mensagemRepository = mensagemRepository;
-    }
+    private final ChatRepository chatRepository;
+    private final MensagemRepository mensagemRepository;
 
     public ChatService(ChatRepository chatRepository, MensagemRepository mensagemRepository) {
         this.chatRepository = chatRepository;

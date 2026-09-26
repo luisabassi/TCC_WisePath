@@ -1,6 +1,5 @@
 package wisepath.code.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -10,7 +9,7 @@ import wisepath.code.repository.MensagemRepository;
 
 @Service
 public class MensagemService{
-    @Autowired private MensagemRepository mensagemRepository;
+    private final MensagemRepository mensagemRepository;
 
     public MensagemService(MensagemRepository mensagemRepository) {
         this.mensagemRepository = mensagemRepository;
@@ -56,13 +55,4 @@ public class MensagemService{
         }
         mensagemRepository.deleteById(idMensagem);
     }
-
-    public MensagemRepository getMensagemRepository() {
-        return mensagemRepository;
-    }
-    
-    public void setMensagemRepository(MensagemRepository mensagemRepository) {
-        this.mensagemRepository = mensagemRepository;
-    }
-
 }
