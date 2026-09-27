@@ -1,10 +1,21 @@
 package wisepath.code.service;
 
+import java.util.List;
+import java.util.Objects;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import wisepath.code.entity.Chat;
+import wisepath.code.entity.MapaMental;
+import wisepath.code.entity.Mensagem;
+import wisepath.code.entity.Resultado;
 import wisepath.code.entity.Usuario;
+import wisepath.code.repository.ChatRepository;
+import wisepath.code.repository.MapaMentalRepository;
+import wisepath.code.repository.MensagemRepository;
+import wisepath.code.repository.ResultadoRepository;
 import wisepath.code.repository.UsuarioRepository;
 
 @Service
@@ -12,10 +23,23 @@ public class UsuarioService {
 
     private static final int TAMANHO_MINIMO_SENHA = 8;
     private final UsuarioRepository usuarioRepository;
+    private final ChatRepository chatRepository;
+    private final ResultadoRepository resultadoRepository;
+    private final MapaMentalRepository mapaMentalRepository;
+    private final MensagemRepository mensagemRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UsuarioService(UsuarioRepository usuarioRepository, PasswordEncoder passwordEncoder) {
+    public UsuarioService(UsuarioRepository usuarioRepository,
+                         ChatRepository chatRepository,
+                         ResultadoRepository resultadoRepository,
+                         MapaMentalRepository mapaMentalRepository,
+                         MensagemRepository mensagemRepository,
+                         PasswordEncoder passwordEncoder) {
         this.usuarioRepository = usuarioRepository;
+        this.chatRepository = chatRepository;
+        this.resultadoRepository = resultadoRepository;
+        this.mapaMentalRepository = mapaMentalRepository;
+        this.mensagemRepository = mensagemRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -83,11 +107,33 @@ public class UsuarioService {
 
     @Transactional
     public void excluirConta(Long idUsuario) {
-        if (!usuarioRepository.existsById(idUsuario)) {
-            throw new IllegalArgumentException("Usuário não encontrado.");
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado."));
+
+        List<Chat> chats = chatRepository.findByUsuarioIdUsuarioOrderByDataCriacaoDesc(idUsuario);
+
+        for (Chat chat : chats) {
+            List<Resultado> resultados = resultadoRepository.findByChatIdChatOrderByIdResultadoDesc(chat.getIdChat());
+
+            List<MapaMental> mapas = resultados.stream()
+                    .map(Resultado::getMapaMental)
+                    .filter(Objects::nonNull)
+                    .toList();
+
+            // Remove primeiro os resultados (isso também limpa a tabela de
+            // junção resultado_profissao automaticamente), depois os mapas
+            // mentais que ficaram órfãos.
+            resultadoRepository.deleteAll(resultados);
+            mapaMentalRepository.deleteAll(mapas);
+
+            List<Mensagem> mensagens = mensagemRepository.findByChatIdChatOrderByIdMensagemAsc(chat.getIdChat());
+            mensagemRepository.deleteAll(mensagens);
         }
-        usuarioRepository.deleteById(idUsuario);
+
+        chatRepository.deleteAll(chats);
+        usuarioRepository.delete(usuario);
     }
+
 
     public PasswordEncoder getPasswordEncoder() {
         return passwordEncoder;

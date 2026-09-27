@@ -3,8 +3,8 @@ package wisepath.code.controller;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -56,7 +56,7 @@ public class ResultadoController {
         return ResponseEntity.ok(ResultadoDTO.fromEntity(resultado));
     }
 
-     @GetMapping("/{idResultado}")
+    @GetMapping("/{idResultado}")
     public ResponseEntity<ResultadoDTO> buscarPorId(@AuthenticationPrincipal Usuario usuarioLogado,
         @PathVariable Long idChat, @PathVariable Long idResultado) {
 
@@ -66,7 +66,7 @@ public class ResultadoController {
         return ResponseEntity.ok(ResultadoDTO.fromEntity(resultado));
     }
 
-     @GetMapping
+    @GetMapping
     public ResponseEntity<List<ResultadoDTO>> listarPorChat(@AuthenticationPrincipal Usuario usuarioLogado,
         @PathVariable Long idChat) {
         chatService.buscarChatDoUsuario(idChat, usuarioLogado.getIdUsuario());

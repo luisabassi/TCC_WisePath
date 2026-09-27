@@ -27,7 +27,7 @@ public class Mensagem {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idMensagem;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String conteudo;
 
     @Enumerated(EnumType.STRING)

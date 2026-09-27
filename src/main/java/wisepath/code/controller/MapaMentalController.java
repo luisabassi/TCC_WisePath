@@ -18,7 +18,7 @@ import wisepath.code.service.MapaMentalService;
 import wisepath.code.service.ResultadoService;
 
 @RestController
-@RequestMapping("/mapamental")
+@RequestMapping("/mapamental/{id}")
 public class MapaMentalController {
     private final MapaMentalService mapaMentalService;
     private final ResultadoService resultadoService;
@@ -28,14 +28,14 @@ public class MapaMentalController {
         this.resultadoService = resultadoService;
     }
 
-    @GetMapping("/{id}")
+    @GetMapping
     public ResponseEntity<MapaMentalResponseDTO> buscarPorId(@AuthenticationPrincipal Usuario usuarioLogado,
             @PathVariable Long id) {
         resultadoService.buscarResultadoDoUsuarioPorMapaMental(id, usuarioLogado.getIdUsuario());
         return ResponseEntity.ok(MapaMentalResponseDTO.fromEntity(mapaMentalService.buscarPorId(id)));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping
     public ResponseEntity<MapaMentalResponseDTO> atualizar(@AuthenticationPrincipal Usuario usuarioLogado,
             @PathVariable Long id, @RequestBody @Valid MapaMentalDTO dto) {
         resultadoService.buscarResultadoDoUsuarioPorMapaMental(id, usuarioLogado.getIdUsuario());
@@ -43,7 +43,7 @@ public class MapaMentalController {
                 mapaMentalService.atualizarMapaMental(id, dto.jsonMapa())));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping
     public ResponseEntity<Void> deletarMapaMental(@AuthenticationPrincipal Usuario usuarioLogado,
             @PathVariable Long id) {
         resultadoService.buscarResultadoDoUsuarioPorMapaMental(id, usuarioLogado.getIdUsuario());
