@@ -53,7 +53,7 @@ Screens.login = {
       submitBtn.textContent = "Entrando...";
       feedback.innerHTML = "";
 
-      // Autentica de verdade no back-end e guarda o token JWT retornado.
+      // Autentica no back-end e guarda o token JWT retornado.
       Api.login(email, password)
         .then((sessao) => {
           Auth.salvar(sessao);
