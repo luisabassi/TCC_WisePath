@@ -20,7 +20,7 @@ Screens.login = {
 
             <form id="login-form" class="auth-form">
               ${fieldHTML({ id: "login-email", label: "Email:", type: "email", placeholder: "seuemail@gmail.com" })}
-              ${fieldHTML({ id: "login-password", label: "Senha:", placeholder: "••••••••••••", withToggle: true })}
+              ${fieldHTML({ id: "login-password", label: "Senha:", placeholder: "••••••••", withToggle: true })}
               <div id="login-feedback"></div>
               <div class="auth-form-submit">
                 <button type="submit" class="btn-primary" id="login-submit">Entrar</button>

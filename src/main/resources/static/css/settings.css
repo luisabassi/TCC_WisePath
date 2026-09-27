@@ -1,0 +1,70 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Telas de configurações: 
+   Perfil, Segurança, Excluir conta e Sobre
+   ───────────────────────────────────────────────────────────────────────── 
+*/
+.settings-page {
+  min-height: 100vh; display: flex;
+  align-items: center; justify-content: center; padding: 24px 16px;
+}
+.settings-card {
+  background: white; border-radius: 24px; width: 100%; max-width: 760px;
+  display: grid; grid-template-columns: 220px 1fr;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.1); overflow: hidden; min-height: 520px;
+}
+@media (max-width: 640px) {
+  .settings-card { grid-template-columns: 1fr; }
+  .settings-sidebar { border-right: none; border-bottom: 1px solid #f0f0f5; padding: 16px; }
+  .settings-sidebar-nav { flex-direction: row; flex-wrap: wrap; gap: 4px; }
+}
+
+/* Menu lateral de abas */
+.settings-sidebar {
+  background: #f8f7fc; border-right: 1px solid #ece9f5;
+  padding: 28px 16px; display: flex; flex-direction: column; gap: 4px;
+}
+.settings-sidebar-header {
+  display: flex; align-items: center; gap: 6px;
+  margin-bottom: 20px; padding: 0 4px;
+}
+.settings-sidebar-title { font-weight: 800; font-size: 18px; color: #0d1b4b; }
+@media (max-width: 640px) { .settings-sidebar-title { display: none; } }
+.settings-sidebar-nav { display: flex; flex-direction: column; gap: 4px; }
+.settings-nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-radius: 12px; border: none; background: none;
+  font-family: inherit; font-size: 14px; font-weight: 600; color: #6b7280;
+  cursor: pointer; text-align: left; transition: all 0.15s; width: 100%;
+}
+.settings-nav-item:hover { background: #ece9f5; color: #0d1b4b; }
+.settings-nav-item.active { background: #0d1b4b; color: white; }
+.settings-nav-item .nav-icon { font-size: 16px; }
+
+/* Conteúdo da aba selecionada */
+.settings-content { padding: 32px 36px; overflow-y: auto; }
+@media (max-width: 640px) { .settings-content { padding: 20px; } }
+.settings-section-title { font-weight: 800; font-size: 20px; color: #0d1b4b; margin-bottom: 24px; }
+.settings-fields { display: flex; flex-direction: column; gap: 16px; }
+.settings-btns { display: flex; gap: 10px; margin-top: 28px; }
+.settings-btns .btn-primary { flex: 1; width: auto; }
+.settings-btn-solo { flex: none; padding: 13px 32px; }
+
+/* Avatar com iniciais (círculo com degradê) */
+.avatar-picker { display: flex; justify-content: center; margin-bottom: 28px; }
+.avatar-picker-wrap { position: relative; display: inline-block; }
+
+/* Aba Sobre */
+.about-brand {
+  display: flex; flex-direction: column; align-items: center; margin-bottom: 24px;
+}
+.about-logo { width: 64px; height: 64px; object-fit: contain; margin-bottom: 8px; }
+.about-brand-name { font-weight: 800; font-size: 20px; color: #0d1b4b; }
+.about-brand-version { font-size: 13px; color: #9ca3af; margin-top: 4px; }
+.about-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 0; border-bottom: 1px solid #f0f0f5; font-size: 14px;
+}
+.about-row:last-child { border-bottom: none; }
+.about-key { font-weight: 600; color: #0d1b4b; }
+.about-val { color: #6b7280; }
+.about-links { margin-top: 24px; display: flex; gap: 16px; justify-content: center; }

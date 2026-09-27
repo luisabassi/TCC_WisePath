@@ -1,0 +1,123 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Base
+   Reset, tipografia, botões, campos de formulário e avatar.
+   ───────────────────────────────────────────────────────────────────────── 
+/* ── Reset básico ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Plus Jakarta Sans', system-ui, sans-serif; }
+
+/* ── Tipografia reutilizável ── */
+.h1 { font-weight: 800; color: #0d1b4b; line-height: 1.15; }
+.h2 { font-weight: 800; color: #0d1b4b; }
+.muted { color: #6b7280; font-size: 14px; line-height: 1.6; }
+.section-label {
+  font-weight: 700; font-size: 11px; color: #7c3aed;
+  letter-spacing: 0.1em; text-transform: uppercase;
+  margin: 4px 0 16px;
+}
+.divider { height: 1px; background: #f0f0f5; margin: 16px 0; }
+
+/* ── Fundo com gradiente em malha (usado nas telas Welcome/Settings/Chat) ── */
+.mesh-bg {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse at 15% 60%, #e8b4d8 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 20%, #c4b0e8 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 85%, #f4c4d0 0%, transparent 50%),
+    #f0e4f4;
+}
+
+/* ── Logo (usado em várias telas) ── */
+.logo-row { display: flex; align-items: center; gap: 10px; }
+.logo-row img { width: 44px; height: 44px; object-fit: contain; }
+.logo-text { font-weight: 800; font-size: 22px; color: #0d1b4b; letter-spacing: -0.4px; }
+
+/* variação: linha horizontal centralizada (tela de cadastro) */
+.logo-row-center { justify-content: center; margin-bottom: 32px; }
+.logo-row-center img { width: 52px; height: 52px; }
+.logo-row-center .logo-text { font-size: 26px; }
+
+/* variação: pequena, usada na barra de navegação da tela Welcome */
+.logo-row-sm img { width: 34px; height: 34px; }
+.logo-row-sm .logo-text { font-size: 18px; }
+
+/* variação: empilhado e centralizado (tela de login) */
+.logo-stack {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 6px; margin-bottom: 32px;
+}
+.logo-stack img { width: 64px; height: 64px; object-fit: contain; }
+.logo-stack .logo-text { font-size: 26px; }
+
+/* ── Botões ── */
+.btn-primary {
+  width: 100%; background: #0d1b4b; color: white; border: none;
+  border-radius: 999px; padding: 14px; font-size: 15px; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: opacity 0.15s, transform 0.1s;
+}
+.btn-primary:hover { opacity: 0.9; }
+.btn-primary:active { transform: scale(0.98); }
+.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.btn-secondary {
+  flex: 1; background: #8896b0; color: white; border: none;
+  border-radius: 999px; padding: 14px; font-size: 15px; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: opacity 0.15s;
+}
+.btn-secondary:hover { opacity: 0.85; }
+
+.btn-outline {
+  background: white; color: #0d1b4b; border: 2px solid #d1d5db;
+  border-radius: 999px; padding: 12px 32px; font-size: 15px; font-weight: 700;
+  cursor: pointer; font-family: inherit; transition: background 0.15s;
+}
+.btn-outline:hover { background: #f3f4f6; }
+
+.btn-ghost {
+  background: none; border: none; cursor: pointer;
+  font-family: inherit; font-size: 14px;
+}
+.btn-ghost.underline { text-decoration: underline; font-size: 13px; }
+
+.link-btn {
+  background: none; border: none; color: #0d1b4b; font-weight: 700;
+  cursor: pointer; font-family: inherit; font-size: 14px; text-decoration: underline;
+}
+
+.icon-btn {
+  background: none; border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 10px; padding: 8px; transition: background 0.15s;
+}
+.icon-btn:hover { background: rgba(0,0,0,0.06); }
+
+/* ── Campos de formulário ── */
+.field { display: flex; flex-direction: column; gap: 8px; }
+.field label { font-weight: 700; font-size: 14px; color: #0d1b4b; }
+.field-wrap { position: relative; }
+.field input {
+  width: 100%; border: none; outline: none;
+  background: #c8d4e8; border-radius: 999px;
+  padding: 13px 48px 13px 20px; font-size: 14px;
+  color: #0d1b4b; font-family: inherit; transition: background 0.15s;
+}
+.field input:focus { background: #b8c8dc; }
+.field input::placeholder { color: #7a8aa8; }
+.eye-btn {
+  position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; color: #7a8aa8;
+  display: flex; align-items: center; padding: 0;
+}
+.eye-btn:hover { color: #0d1b4b; }
+
+.feedback-ok { color: #16a34a; font-size: 12px; margin-top: 4px; }
+.feedback-err { color: #e11d48; font-size: 12px; margin-top: 4px; }
+
+/* ── Avatar (círculo com degradê + iniciais do usuário) ── */
+.avatar {
+  border-radius: 50%; border: none; cursor: pointer;
+  background: linear-gradient(135deg, #a855f7, #6366f1);
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden; flex-shrink: 0; padding: 0;
+  color: white; font-weight: 700; font-family: inherit;
+}

@@ -1,0 +1,32 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   Tela de boas-vindas
+   ───────────────────────────────────────────────────────────────────────── 
+*/
+.welcome-nav {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 28px;
+}
+.welcome-nav-right { display: flex; align-items: center; gap: 12px; }
+
+.welcome-hero { text-align: center; padding: 40px 20px 24px; }
+.welcome-title { font-size: clamp(1.75rem, 5vw, 3rem); }
+.welcome-subtitle {
+  max-width: 520px; margin: 14px auto 0; font-size: clamp(13px, 2vw, 15px);
+}
+.welcome-btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 24px; }
+.welcome-btns .btn-primary { width: auto; padding: 13px 36px; }
+
+.welcome-section { max-width: 760px; margin: 0 auto; padding: 16px 20px 60px; }
+.welcome-section-title { font-size: clamp(1.4rem, 4vw, 1.9rem); text-align: center; }
+.welcome-section-desc { text-align: center; margin: 12px auto 0; max-width: 520px; }
+
+.welcome-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 28px; }
+@media (max-width: 600px) { .welcome-cards { grid-template-columns: 1fr; } }
+.welcome-card {
+  background: white; border-radius: 20px; padding: 20px;
+  display: flex; align-items: flex-start; gap: 14px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+}
+.welcome-card-emoji { font-size: 28px; flex-shrink: 0; }
+.welcome-card-title { font-weight: 700; font-size: 15px; color: #0d1b4b; margin-bottom: 4px; }
+.welcome-card-desc { font-size: 13px; color: #6b7280; line-height: 1.5; }
