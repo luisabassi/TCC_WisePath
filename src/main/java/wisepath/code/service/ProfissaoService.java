@@ -32,7 +32,8 @@ public class ProfissaoService {
     }
 
     @Transactional
-    public Profissao buscarOuCriarProfissao(String nome, String descricao, double mediaSalarial, String empregabilidade){
+    public Profissao buscarOuCriarProfissao(String nome, String descricao, 
+        double mediaSalarial, String empregabilidade, String tendenciasFuturas){
         if(nome == null || nome.isBlank()){
             throw new IllegalArgumentException("A profissão precisa ter um nome");
         }
@@ -51,30 +52,34 @@ public class ProfissaoService {
         novaProfissao.setDescricao(descricao);
         novaProfissao.setMediaSalarial(mediaSalarial);
         novaProfissao.setEmpregabilidade(empregabilidade);
+        novaProfissao.setTendenciasFuturas(tendenciasFuturas);
         return profissaoRepository.save(novaProfissao);
     }
 
 
 
     @Transactional
-    public Profissao atualizarProfissao(Long idProfissao,String descricao, Double mediaSalarial, String empregabilidade) {
+    public Profissao atualizarProfissao(Long idProfissao, String descricao, Double mediaSalarial, String empregabilidade, String tendenciasFuturas) {
 
         Profissao profissao = buscarPorId(idProfissao);
 
-        if(descricao != null && !descricao.isBlank()){
+        if (descricao != null && !descricao.isBlank()) {
             profissao.setDescricao(descricao);
         }
 
-        if(mediaSalarial != null){
+        if (mediaSalarial != null) {
             profissao.setMediaSalarial(mediaSalarial);
         }
 
-        if(empregabilidade != null && !empregabilidade.isBlank()){
+        if (empregabilidade != null && !empregabilidade.isBlank()) {
             profissao.setEmpregabilidade(empregabilidade);
         }
 
-        return profissaoRepository.save(profissao);
+        if (tendenciasFuturas != null && !tendenciasFuturas.isBlank()) {
+            profissao.setTendenciasFuturas(tendenciasFuturas);
+        }
 
+        return profissaoRepository.save(profissao);
     }
     
 

@@ -9,5 +9,6 @@ public record ProfissaoDTO(
     @NotBlank String nome, 
     @Size(min = 10, max = 400) String descricao,
     @NotNull @Positive Double mediaSalarial,
-    @NotBlank String empregabilidade
+    @NotBlank String empregabilidade,
+    @NotBlank String tendenciasFuturas
 ) {}

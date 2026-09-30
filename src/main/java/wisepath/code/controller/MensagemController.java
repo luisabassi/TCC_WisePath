@@ -1,6 +1,7 @@
 package wisepath.code.controller;
 
 import java.net.URI;
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,52 +23,65 @@ import wisepath.code.entity.Chat;
 import wisepath.code.entity.Mensagem;
 import wisepath.code.entity.Usuario;
 import wisepath.code.service.ChatService;
+import wisepath.code.service.GeminiService;
 import wisepath.code.service.MensagemService;
 
 @RestController
 @RequestMapping("/chats/{idChat}/mensagens")
 public class MensagemController {
-    private final MensagemService mensagemService; 
-    private final ChatService chatService;
 
-    public MensagemController(MensagemService mensagemService, ChatService chatService){
+    private final MensagemService mensagemService;
+    private final ChatService chatService;
+    private final GeminiService geminiService;
+
+    public MensagemController(MensagemService mensagemService, ChatService chatService, GeminiService geminiService) {
         this.mensagemService = mensagemService;
-        this.chatService = chatService; 
+        this.chatService = chatService;
+        this.geminiService = geminiService;
     }
 
     @PostMapping
-    public ResponseEntity<MensagemResponseDTO> enviarMensagem(
-        @AuthenticationPrincipal Usuario usuarioLogado, 
-        @PathVariable Long idChat, 
-        @RequestBody @Valid NovaMensagemDTO dto){
+    public ResponseEntity<List<MensagemResponseDTO>> enviarMensagem(
+            @AuthenticationPrincipal Usuario usuarioLogado,
+            @PathVariable Long idChat,
+            @RequestBody @Valid NovaMensagemDTO dto) {
 
         Chat chat = chatService.buscarChatDoUsuario(idChat, usuarioLogado.getIdUsuario());
-        Mensagem mensagem = mensagemService.enviarMensagem(chat, dto.conteudo(), Mensagem.AutorMensagem.USUARIO);
- 
-        URI uri = URI.create("/chats/" + idChat + "/mensagens/" + mensagem.getIdMensagem());
-        return ResponseEntity.created(uri).body(MensagemResponseDTO.fromEntity(mensagem));
+
+        Mensagem mensagemUsuario = mensagemService.enviarMensagem(chat, dto.conteudo(), Mensagem.AutorMensagem.USUARIO);
+
+        chat.getMensagens().add(mensagemUsuario);
+
+        String textoResposta = geminiService.responderMensagem(chat);
+
+        Mensagem mensagemBot = mensagemService.enviarMensagem(chat, textoResposta, Mensagem.AutorMensagem.CHATBOT);
+
+        URI uri = URI.create("/chats/" + idChat + "/mensagens/" + mensagemBot.getIdMensagem());
+        return ResponseEntity.created(uri).body(List.of(
+            MensagemResponseDTO.fromEntity(mensagemUsuario),
+            MensagemResponseDTO.fromEntity(mensagemBot)
+        ));
     }
 
     @PutMapping("/{idMensagem}")
     public ResponseEntity<MensagemResponseDTO> editarMensagem(
-        @AuthenticationPrincipal Usuario usuarioLogado, 
-        @PathVariable Long idChat, 
-        @PathVariable Long idMensagem, 
-        @RequestBody @Valid EditarMensagemDTO dto){
+            @AuthenticationPrincipal Usuario usuarioLogado,
+            @PathVariable Long idChat,
+            @PathVariable Long idMensagem,
+            @RequestBody @Valid EditarMensagemDTO dto) {
 
-            chatService.buscarChatDoUsuario(idChat, usuarioLogado.getIdUsuario()); 
-            garantirMensagemPertenceAoChat(idChat, idMensagem);
-            return ResponseEntity.ok(MensagemResponseDTO.fromEntity(
+        chatService.buscarChatDoUsuario(idChat, usuarioLogado.getIdUsuario());
+        garantirMensagemPertenceAoChat(idChat, idMensagem);
+        return ResponseEntity.ok(MensagemResponseDTO.fromEntity(
                 mensagemService.editarMensagem(idMensagem, dto.conteudo())
-            ));
+        ));
     }
-    
 
     @DeleteMapping("/{idMensagem}")
     public ResponseEntity<Void> deletarMensagem(
-        @AuthenticationPrincipal Usuario usuarioLogado,
-        @PathVariable Long idChat, 
-        @PathVariable Long idMensagem){
+            @AuthenticationPrincipal Usuario usuarioLogado,
+            @PathVariable Long idChat,
+            @PathVariable Long idMensagem) {
 
         chatService.buscarChatDoUsuario(idChat, usuarioLogado.getIdUsuario());
         garantirMensagemPertenceAoChat(idChat, idMensagem);
@@ -75,13 +89,13 @@ public class MensagemController {
         return ResponseEntity.noContent().build();
     }
 
-      private void garantirMensagemPertenceAoChat(
-        Long idChat, Long idMensagem) {
-            
-        Mensagem mensagem = mensagemService.buscarPorId(idMensagem);
-        if (!mensagem.getChat().getIdChat().equals(idChat)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Mensagem não encontrada neste chat.");
-        }
+    private void garantirMensagemPertenceAoChat(
+      Long idChat, Long idMensagem) {
+
+      Mensagem mensagem = mensagemService.buscarPorId(idMensagem);
+      if (!mensagem.getChat().getIdChat().equals(idChat)) {
+         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Mensagem não encontrada neste chat.");
+      }
     }
 
 }

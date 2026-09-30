@@ -31,7 +31,7 @@ public class Resultado {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idResultado;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String resumo;
 
     @ManyToOne

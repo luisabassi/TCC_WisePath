@@ -7,7 +7,8 @@ public record ProfissaoResponseDTO(
     String nome,
     String descricao,
     Double mediaSalarial,
-    String empregabilidade
+    String empregabilidade, 
+    String tendenciasFuturas
 ) {
     public static ProfissaoResponseDTO fromEntity(Profissao profissao) {
         return new ProfissaoResponseDTO(
@@ -15,7 +16,8 @@ public record ProfissaoResponseDTO(
             profissao.getNome(),
             profissao.getDescricao(),
             profissao.getMediaSalarial(),
-            profissao.getEmpregabilidade()
+            profissao.getEmpregabilidade(),
+            profissao.getTendenciasFuturas()
         );
     }
 }

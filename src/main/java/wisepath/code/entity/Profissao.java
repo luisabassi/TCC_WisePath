@@ -29,13 +29,16 @@ public class Profissao {
     @Column(nullable = false)
     private String nome;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
     private String descricao;
 
     @Column
     private Double mediaSalarial;
 
-    @Column
+    @Column(columnDefinition = "TEXT")
+    private String tendenciasFuturas;
+
+    @Column(length = 500)
     private String empregabilidade;
 
     @ManyToMany(mappedBy = "profissoes")
