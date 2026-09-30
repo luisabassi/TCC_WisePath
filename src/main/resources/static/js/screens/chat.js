@@ -1,4 +1,7 @@
 // ─── Tela: Chat ─────────────────────────────────────────────────────────────
+// 1 mensagem de abertura + 4 respostas do roteiro Ikigai (ver GeminiService.PERGUNTAS_IKIGAI)
+const TOTAL_RESPOSTAS = 5;
+
 Screens.chat = {
   _local: {
     chatId: null,
@@ -61,12 +64,12 @@ Screens.chat = {
 
       if (resultados.length > 0) {
         local.messages.push(this.montarMensagemResultado(resultados[0]));
-        local.stage = BOT_FLOW.length;
+        local.stage = TOTAL_RESPOSTAS;
       } else {
         const respostasDadas = local.messages.filter(
           (m) => m.role === "user",
         ).length;
-        local.stage = Math.min(respostasDadas, BOT_FLOW.length - 1);
+        local.stage = Math.min(respostasDadas, TOTAL_RESPOSTAS);
       }
     } catch (err) {
       local.error = err.message;
@@ -88,11 +91,33 @@ Screens.chat = {
   },
 
   montarMensagemResultado(resultado) {
-    const profissoes = resultado.profissoes.map((p) => `• ${p.nome}`).join("\n");
+    const brl = new Intl.NumberFormat("pt-BR", {
+      style: "currency",
+      currency: "BRL",
+    });
+
+    const profissoes = (resultado.profissoes || [])
+      .map((p, i) => {
+        const salario =
+          typeof p.mediaSalarial === "number"
+            ? `${brl.format(p.mediaSalarial)} / mês`
+            : "não informada";
+        return [
+          `**${i + 1}. ${p.nome}**`,
+          p.descricao || "",
+          `**Média salarial:** ${salario}`,
+          `**Empregabilidade:** ${p.empregabilidade || "não informada"}`,
+          `**Tendências futuras:** ${p.tendenciasFuturas || "não informadas"}`, 
+        ]
+          .filter(Boolean)
+          .join("\n");
+      })
+      .join("\n\n");
+
     return {
       id: `resultado-${resultado.idResultado}`,
       role: "assistant",
-      content: `${resultado.resumo}\n\n**Profissões sugeridas:**\n${profissoes}`,
+      content: `${resultado.resumo}\n\n**Profissões sugeridas:**\n\n${profissoes}`,
     };
   },
 
@@ -312,7 +337,7 @@ Screens.chat = {
       const [mensagemUsuario, mensagemBot] = await Api.enviarMensagem(local.chatId, text);
 
       const idx = local.messages.findIndex((m) => m.id === tempId);
-      if(idx !== 1){
+      if(idx !== -1){
         local.messages[idx] = {
           id :mensagemUsuario.idMensagem, 
           role:"user", 
@@ -340,7 +365,7 @@ Screens.chat = {
     this.renderMessages(container);
     this.atualizarBotaoEnvio(container);
 
-    if(local.satage >= BOT_FLOW.length -1){
+    if(local.stage >= TOTAL_RESPOSTAS){
       this.gerarResultado(container);
     }
   },
@@ -353,8 +378,8 @@ Screens.chat = {
     try{
       const resultado = await Api.gerarResultado(local.chatId);
       local.messages.push(this.montarMensagemResultado(resultado));
-      local.stage = BOT_FLOW.length;
-    }catch{
+      local.stage = TOTAL_RESPOSTAS;
+    }catch(err){
       local.messages.push({
         id: `bot-${Date.now()}`,
         role: "assistant",
