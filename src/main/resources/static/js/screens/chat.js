@@ -13,6 +13,7 @@ Screens.chat = {
     chatsLoaded: false,
     loadingChat: false,
     error: null,
+    editingChatId: null,
   },
 
   isMobile() {
@@ -90,6 +91,64 @@ Screens.chat = {
     this.render(container);
   },
 
+  iniciarRenomear(container, idChat) {
+    this._local.editingChatId = idChat;
+    this.render(container);
+  },
+
+  cancelarRenomear(container) {
+    this._local.editingChatId = null;
+    this.render(container);
+  },
+
+  async confirmarRenomear(container, idChat, novoNome) {
+    const local = this._local;
+    if (local.editingChatId !== idChat) return; // evita salvar 2x (Enter + blur)
+    local.editingChatId = null;
+
+    const nome = novoNome.trim();
+    const atual = local.chats.find((c) => c.idChat === idChat);
+    if (!nome || !atual || nome === atual.nome) {
+      this.render(container);
+      return;
+    }
+
+    try {
+      const atualizado = await Api.renomearChat(idChat, nome);
+      local.chats = local.chats.map((c) =>
+        c.idChat === idChat ? { ...c, nome: atualizado.nome } : c,
+      );
+      local.error = null;
+    } catch (err) {
+      local.error = err.message;
+    }
+    this.render(container);
+  },
+
+  async excluirChat(container, idChat) {
+    const local = this._local;
+    const chat = local.chats.find((c) => c.idChat === idChat);
+    if (!chat) return;
+    if (!confirm(`Excluir a conversa "${chat.nome}"? Essa ação não pode ser desfeita.`)) return;
+
+    try {
+      await Api.excluirChat(idChat);
+    } catch (err) {
+      local.error = err.message;
+      this.render(container);
+      return;
+    }
+
+    local.chats = local.chats.filter((c) => c.idChat !== idChat);
+    local.error = null;
+
+    if (local.chatId === idChat) {
+      this.novoChat(container); // estava com esse chat aberto: volta para a tela inicial
+    } else {
+      this.render(container);
+    }
+  },
+
   montarMensagemResultado(resultado) {
     const brl = new Intl.NumberFormat("pt-BR", {
       style: "currency",
@@ -107,7 +166,7 @@ Screens.chat = {
           p.descricao || "",
           `**Média salarial:** ${salario}`,
           `**Empregabilidade:** ${p.empregabilidade || "não informada"}`,
-          `**Tendências futuras:** ${p.tendenciasFuturas || "não informadas"}`, 
+          `**Tendências futuras:** ${p.tendenciasFuturas || "não informadas"}`,
         ]
           .filter(Boolean)
           .join("\n");
@@ -146,9 +205,20 @@ Screens.chat = {
             ${local.chats
               .map(
                 (c) => `
-              <button class="sidebar-chat-item ${c.idChat === local.chatId ? "active" : ""}" data-chat-id="${c.idChat}">
-                ${escapeHtml(c.nome)}
-              </button>
+              <div class="sidebar-chat-row ${c.idChat === local.chatId ? "active" : ""}">
+                ${
+                  c.idChat === local.editingChatId
+                    ? `<input class="sidebar-chat-edit" data-chat-id="${c.idChat}"
+                         value="${escapeHtml(c.nome).replace(/"/g, "&quot;")}" maxlength="100" />`
+                    : `<button class="sidebar-chat-item" data-chat-id="${c.idChat}">${escapeHtml(c.nome)}</button>
+                       <div class="sidebar-chat-actions">
+                         <button class="chat-action-btn" data-action="rename" data-chat-id="${c.idChat}"
+                           title="Renomear" aria-label="Renomear conversa">${Icons.pencil}</button>
+                         <button class="chat-action-btn chat-action-danger" data-action="delete" data-chat-id="${c.idChat}"
+                           title="Excluir" aria-label="Excluir conversa">${Icons.trash}</button>
+                       </div>`
+                }
+              </div>
             `,
               )
               .join("")}
@@ -290,6 +360,33 @@ Screens.chat = {
         this.abrirChat(container, id);
       });
     });
+
+    container.querySelectorAll(".chat-action-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const id = Number(btn.getAttribute("data-chat-id"));
+        if (btn.getAttribute("data-action") === "rename") this.iniciarRenomear(container, id);
+        else this.excluirChat(container, id);
+      });
+    });
+
+    const editInput = container.querySelector(".sidebar-chat-edit");
+    if (editInput) {
+      const id = Number(editInput.getAttribute("data-chat-id"));
+      editInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          this.confirmarRenomear(container, id, editInput.value);
+        } else if (e.key === "Escape") {
+          this.cancelarRenomear(container);
+        }
+      });
+      editInput.addEventListener("blur", () =>
+        this.confirmarRenomear(container, id, editInput.value),
+      );
+      editInput.focus();
+      editInput.select();
+    }
 
     const input = container.querySelector("#chat-input");
     const sendBtn = container.querySelector("#chat-send-btn");

@@ -41,13 +41,45 @@
 
 .sidebar-recents { padding: 0 14px; flex: 1; overflow-y: auto; }
 .sidebar-recents-label { font-weight: 700; font-size: 13px; color: #0d1b4b; margin-bottom: 8px; }
+.sidebar-chat-row {
+  display: flex; align-items: center; border-radius: 8px;
+  transition: background 0.15s;
+}
+.sidebar-chat-row:hover { background: #f5f3ff; }
+.sidebar-chat-row.active { background: #ede9fe; }
+
 .sidebar-chat-item {
-  display: block; width: 100%; text-align: left; background: none; border: none;
-  color: #0d1b4b; font-weight: 600; font-size: 13px; padding: 8px 4px;
-  cursor: pointer; font-family: inherit; border-radius: 8px; transition: background 0.15s;
+  flex: 1; min-width: 0; text-align: left; background: none; border: none;
+  color: #0d1b4b; font-weight: 600; font-size: 13px; padding: 8px;
+  cursor: pointer; font-family: inherit; border-radius: 8px;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.sidebar-chat-item:hover { background: #f5f3ff; }
+
+/* Ícones de renomear/excluir: só aparecem no hover (ou com foco de teclado) */
+.sidebar-chat-actions {
+  display: none; align-items: center; gap: 2px;
+  padding-right: 4px; flex-shrink: 0;
+}
+.sidebar-chat-row:hover .sidebar-chat-actions,
+.sidebar-chat-row:has(:focus-visible) .sidebar-chat-actions { display: flex; }
+
+.chat-action-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 26px; height: 26px; border: none; background: none; border-radius: 6px;
+  color: #6b7280; cursor: pointer; transition: background 0.15s, color 0.15s;
+}
+.chat-action-btn:hover { background: rgba(13, 27, 75, 0.08); color: #0d1b4b; }
+.chat-action-danger:hover { background: #fee2e2; color: #dc2626; }
+
+/* Campo de edição inline ao renomear */
+.sidebar-chat-edit {
+  width: 100%; box-sizing: border-box; font: inherit; font-size: 13px; font-weight: 600;
+  color: #0d1b4b; padding: 7px 8px; background: white;
+  border: 2px solid #0d1b4b; border-radius: 8px; outline: none;
+}
+
+/* Celular/tablet não têm hover: deixa os ícones sempre visíveis */
+@media (hover: none) { .sidebar-chat-actions { display: flex; } }
 
 .sidebar-bottom {
   display: flex; justify-content: space-between; align-items: center;

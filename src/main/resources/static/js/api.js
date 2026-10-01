@@ -67,6 +67,17 @@ const Api = {
       });
     },
 
+    renomearChat(idChat, nome){
+      return this._request(`chats/${idChat}`, {
+        method: "PUT",
+        body: JSON.stringify({ nome }),
+      });
+    },
+
+    excluirChat(idChat){
+      return this._request(`/chats/${idChat}`, { method: "DELETE" });
+    },
+
     //Mensagens
     listarMensagens(idChat){
       return this._request(`chats/${idChat}/mensagens`);
