@@ -20,7 +20,7 @@ const ROUTES = {
 };
 
 //Telas que exigem sessao (token)
-const PROTECTEC_VIEWS = ["welcome", "chat", "settings"];
+const PROTECTED_VIEWS = ["welcome", "chat", "settings"];
 
 function viewFromPath(pathname){
   const path = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
@@ -33,7 +33,7 @@ function viewFromPath(pathname){
 function resolveView(view){
   const logado = !!Auth.getToken();
   if(!view) return logado ? "welcome" : "login";
-  if(PROTECTEC_VIEWS.includes(view) && !logado) return "login";
+  if(PROTECTED_VIEWS.includes(view) && !logado) return "login";
   if (!PROTECTED_VIEWS.includes(view) && logado) return "welcome";
   return view;
 }
