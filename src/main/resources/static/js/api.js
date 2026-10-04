@@ -78,6 +78,12 @@ const Api = {
       return this._request(`/chats/${idChat}`, { method: "DELETE" });
     },
 
+    //encondeURIComponent serve para codificar um componente de uma URI/URL
+    //transformando caracteres especiais em formatos seguros para internet
+    buscarChats(nome){
+      return this._request(`/chats/busca?nome=${encodeURIComponent(nome)}`);
+    },
+
     //Mensagens
     listarMensagens(idChat){
       return this._request(`chats/${idChat}/mensagens`);

@@ -59,13 +59,13 @@ public class ChatService {
     }
 
     @Transactional(readOnly = true)
-    public Chat buscarPorNome(String nome) {
-        if (nome == null || nome.trim().isEmpty()) {
-            throw new IllegalArgumentException("Nome do chat inválido.");
+    public List<Chat> buscarChatsPorNome(Long idUsuario, String termo) {
+        String nome = termo == null ? "" : termo.trim();
+        if(nome.isEmpty()){
+            return listarChatsPorUsuario(idUsuario);
         }
 
-        return chatRepository.findFirstByNomeIgnoreCase(nome.trim())
-                .orElseThrow(() -> new IllegalArgumentException("Chat não encontrado."));
+        return chatRepository.findByUsuarioIdUsuarioAndNomeContainingIgnoreCaseOrderByDataCriacaoDesc(idUsuario, nome);
     }
 
     @Transactional(readOnly = true)

@@ -34,32 +34,47 @@ public class ChatController {
     }
 
     @PostMapping
-    public ResponseEntity<ChatResponseDTO> criarChat(@AuthenticationPrincipal Usuario usuarioLogado, 
+    public ResponseEntity<ChatResponseDTO> criarChat(
+        @AuthenticationPrincipal Usuario usuarioLogado, 
         @RequestBody ChatDTO dto) {
+
+        // Cria um novo chat associado ao usuário autenticado, usando o nome recebido no corpo da requisição.
         Chat chat = chatService.criarChat(usuarioLogado, dto.nome());
+
+        // Define a localização do novo recurso no cabeçalho "Location" da resposta.
         URI uri = URI.create("/chats/" + chat.getIdChat());
+
+        // Retorna o chat criado no formato de resposta, com o status HTTP 201 (Created).
         return ResponseEntity.created(uri).body(ChatResponseDTO.fromEntity(chat));
     }
+
     
     @PutMapping("/{id}")
-    public ResponseEntity<ChatResponseDTO> renomearChat(@AuthenticationPrincipal Usuario usuarioLogado, 
+    public ResponseEntity<ChatResponseDTO> renomearChat(
+        @AuthenticationPrincipal Usuario usuarioLogado, 
         @PathVariable Long id, @RequestBody ChatDTO dto){
             chatService.buscarChatDoUsuario(id, usuarioLogado.getIdUsuario());
-            return ResponseEntity.ok(ChatResponseDTO.fromEntity(chatService.renomearChat(id, dto.nome())));
+            return ResponseEntity.ok(ChatResponseDTO.
+                fromEntity(chatService.renomearChat(id, dto.nome())));
     }
     
 
     @GetMapping("/{id}")
-    public ResponseEntity<ChatResponseDTO> buscarPorId(@AuthenticationPrincipal Usuario usuarioLogado, @PathVariable Long id) {
+    public ResponseEntity<ChatResponseDTO> buscarPorId(
+        @AuthenticationPrincipal Usuario usuarioLogado, @PathVariable Long id) {
         Chat chat = chatService.buscarChatDoUsuario(id, usuarioLogado.getIdUsuario());
         return ResponseEntity.ok(ChatResponseDTO.fromEntity(chat));
     }
 
     @GetMapping("/busca")
-    public ResponseEntity<ChatResponseDTO> buscarPorNome(@AuthenticationPrincipal Usuario usuarioLogado,
+    public ResponseEntity<List<ChatResponseDTO>> buscarPorNome(
+        @AuthenticationPrincipal Usuario usuarioLogado,
         @RequestParam String nome) {
-       Chat chat = chatService.validarPropriedade(chatService.buscarPorNome(nome), usuarioLogado.getIdUsuario());
-       return ResponseEntity.ok(ChatResponseDTO.fromEntity(chat));
+        List<ChatResponseDTO> chats = chatService.buscarChatsPorNome(usuarioLogado.getIdUsuario(), nome)
+            .stream()
+            .map(ChatResponseDTO::fromEntity)
+            .toList();
+        return ResponseEntity.ok(chats);
     }
 
     @GetMapping("/usuario/{id}")
@@ -82,11 +97,16 @@ public class ChatController {
     public ResponseEntity<List<MensagemResponseDTO>> listarMensagens(@AuthenticationPrincipal Usuario usuarioLogado,
         @PathVariable Long id) {
 
+        // Confirma que o chat existe e pertence ao usuário autenticado.
         chatService.buscarChatDoUsuario(id, usuarioLogado.getIdUsuario());
+
+        // Busca as mensagens do chat e converte as entidades para DTOs de resposta.
         List<MensagemResponseDTO> mensagens = chatService.listarMensagens(id)
                 .stream()
                 .map(MensagemResponseDTO::fromEntity)
                 .toList();
+
+        // Retorna a lista de mensagens com status HTTP 200 (OK).
         return ResponseEntity.ok(mensagens);
     }
 

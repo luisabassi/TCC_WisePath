@@ -14,6 +14,13 @@ Screens.chat = {
     loadingChat: false,
     error: null,
     editingChatId: null,
+    searchOpen: false,
+    searchTerm: "",
+    searchResults: null, // null = ainda sem resultado do back-end para o termo atual
+    searchLoading: false,
+    searchError: null,
+    buscaSeq: 0, // identifica a busca mais recente (descarta respostas antigas)
+    buscaTimer: null, // debounce da digitação
   },
 
   isMobile() {
@@ -123,6 +130,8 @@ Screens.chat = {
       local.error = err.message;
     }
     this.render(container);
+    // o novo nome pode ter deixado de combinar com o termo: consulta o back-end de novo
+    if (local.searchTerm.trim()) this.executarBusca(container);
   },
 
   async excluirChat(container, idChat) {
@@ -140,6 +149,8 @@ Screens.chat = {
     }
 
     local.chats = local.chats.filter((c) => c.idChat !== idChat);
+    if (local.searchResults)
+      local.searchResults = local.searchResults.filter((c) => c.idChat !== idChat);
     local.error = null;
 
     if (local.chatId === idChat) {
@@ -147,6 +158,147 @@ Screens.chat = {
     } else {
       this.render(container);
     }
+  },
+
+  // ─── Busca de chats 
+  // Sem termo: mostra a lista normal. Com termo: mostra o que o servidor devolveu.
+  chatsVisiveis() {
+    const local = this._local;
+    if (local.searchTerm.trim() === "") return local.chats;
+    return local.searchResults || [];
+  },
+
+  async executarBusca(container) {
+    const local = this._local;
+    const termo = local.searchTerm.trim();
+    const seq = ++local.buscaSeq;
+
+    if (!termo) {
+      local.searchResults = null;
+      local.searchLoading = false;
+      local.searchError = null;
+      this.atualizarListaChats(container);
+      return;
+    }
+
+    local.searchLoading = true;
+    local.searchError = null;
+    if (local.searchResults === null) this.atualizarListaChats(container); // "Buscando…"
+
+    let resultados = null;
+    let erro = null;
+    try {
+      resultados = await Api.buscarChats(termo);
+    } catch (err) {
+      erro = err.message;
+    }
+
+    if (seq !== local.buscaSeq) return; // chegou uma busca mais nova: ignora esta resposta
+    local.searchLoading = false;
+    local.searchResults = erro ? [] : resultados;
+    local.searchError = erro;
+    this.atualizarListaChats(container);
+  },
+
+  buscaInputHTML() {
+    const valor = escapeHtml(this._local.searchTerm).replace(/"/g, "&quot;");
+    return `<input class="sidebar-search-input" id="chat-search-input" type="text"
+      placeholder="Buscar por nome…" value="${valor}" autocomplete="off" />`;
+  },
+
+  recentsHTML() {
+    const local = this._local;
+    const buscando = local.searchTerm.trim() !== "";
+    const lista = this.chatsVisiveis();
+
+    const label = buscando ? "Resultados" : "Recentes";
+    let vazio = "";
+    if (buscando && local.searchResults === null) {
+      vazio = `<p class="sidebar-empty">Buscando…</p>`;
+    } else if (buscando && local.searchError) {
+      vazio = `<p class="sidebar-empty">${escapeHtml(local.searchError)}</p>`;
+    } else if (buscando && lista.length === 0) {
+      vazio = `<p class="sidebar-empty">Nenhum chat encontrado.</p>`;
+    }
+
+    const linhas = lista
+      .map(
+        (c) => `
+      <div class="sidebar-chat-row ${c.idChat === local.chatId ? "active" : ""}">
+        ${
+          c.idChat === local.editingChatId
+            ? `<input class="sidebar-chat-edit" data-chat-id="${c.idChat}"
+                 value="${escapeHtml(c.nome).replace(/"/g, "&quot;")}" maxlength="100" />`
+            : `<button class="sidebar-chat-item" data-chat-id="${c.idChat}">${escapeHtml(c.nome)}</button>
+               <div class="sidebar-chat-actions">
+                 <button class="chat-action-btn" data-action="rename" data-chat-id="${c.idChat}"
+                   title="Renomear" aria-label="Renomear conversa">${Icons.pencil}</button>
+                 <button class="chat-action-btn chat-action-danger" data-action="delete" data-chat-id="${c.idChat}"
+                   title="Excluir" aria-label="Excluir conversa">${Icons.trash}</button>
+               </div>`
+        }
+      </div>
+    `,
+      )
+      .join("");
+
+    return `<div class="sidebar-recents-label">${label}</div>${linhas}${vazio}`;
+  },
+
+  // Atualiza só a lista (sem render() completo), para não perder o foco do campo
+  // de busca nem fechar a sidebar no mobile.
+  atualizarListaChats(container) {
+    const recents = container.querySelector(".sidebar-recents");
+    if (!recents) return;
+    recents.innerHTML = this.recentsHTML();
+    this.wireLista(container);
+  },
+
+  toggleBusca(container) {
+    const local = this._local;
+    local.searchOpen = !local.searchOpen;
+    if (!local.searchOpen) {
+      clearTimeout(local.buscaTimer);
+      local.buscaSeq++; // invalida qualquer busca em andamento
+      local.searchTerm = "";
+      local.searchResults = null;
+      local.searchLoading = false;
+      local.searchError = null;
+    }
+
+    const existente = container.querySelector("#chat-search-input");
+    if (local.searchOpen && !existente) {
+      container
+        .querySelector(".sidebar-actions")
+        .insertAdjacentHTML("beforeend", this.buscaInputHTML());
+      this.wireBusca(container);
+      container.querySelector("#chat-search-input").focus();
+    } else if (!local.searchOpen && existente) {
+      existente.remove();
+    }
+    this.atualizarListaChats(container);
+  },
+
+  wireBusca(container) {
+    const local = this._local;
+    const input = container.querySelector("#chat-search-input");
+    if (!input) return;
+
+    input.addEventListener("input", () => {
+      local.searchTerm = input.value;
+      clearTimeout(local.buscaTimer);
+      if (!input.value.trim()) {
+        this.executarBusca(container); // campo vazio: volta à lista normal na hora
+        return;
+      }
+      // primeira digitação: já troca a lista cheia por "Buscando…" (não mostra chats sem filtro)
+      if (local.searchResults === null) this.atualizarListaChats(container);
+      // espera o usuário parar de digitar antes de chamar o back-end
+      local.buscaTimer = setTimeout(() => this.executarBusca(container), 300);
+    });
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") this.toggleBusca(container);
+    });
   },
 
   montarMensagemResultado(resultado) {
@@ -199,30 +351,12 @@ Screens.chat = {
             <button class="sidebar-pill-btn sidebar-pill-btn-primary" id="novo-chat-btn">
               <span class="sidebar-pill-icon">${Icons.plus}</span>Novo Chat
             </button>
+            <button class="sidebar-pill-btn sidebar-pill-btn-outline" id="buscar-chats-btn">
+              <span class="sidebar-pill-icon">${Icons.search}</span>Buscar chats
+            </button>
+            ${local.searchOpen ? this.buscaInputHTML() : ""}
           </div>
-          <div class="sidebar-recents">
-            <div class="sidebar-recents-label">Recentes</div>
-            ${local.chats
-              .map(
-                (c) => `
-              <div class="sidebar-chat-row ${c.idChat === local.chatId ? "active" : ""}">
-                ${
-                  c.idChat === local.editingChatId
-                    ? `<input class="sidebar-chat-edit" data-chat-id="${c.idChat}"
-                         value="${escapeHtml(c.nome).replace(/"/g, "&quot;")}" maxlength="100" />`
-                    : `<button class="sidebar-chat-item" data-chat-id="${c.idChat}">${escapeHtml(c.nome)}</button>
-                       <div class="sidebar-chat-actions">
-                         <button class="chat-action-btn" data-action="rename" data-chat-id="${c.idChat}"
-                           title="Renomear" aria-label="Renomear conversa">${Icons.pencil}</button>
-                         <button class="chat-action-btn chat-action-danger" data-action="delete" data-chat-id="${c.idChat}"
-                           title="Excluir" aria-label="Excluir conversa">${Icons.trash}</button>
-                       </div>`
-                }
-              </div>
-            `,
-              )
-              .join("")}
-          </div>
+          <div class="sidebar-recents">${this.recentsHTML()}</div>
           <div class="sidebar-bottom">
             <button class="icon-btn" id="chat-home-btn" title="Início">${Icons.home}</button>
             <button class="icon-btn" id="chat-logout-btn" title="Sair">${Icons.logoutSm}</button>
@@ -316,6 +450,42 @@ Screens.chat = {
     sendBtn.innerHTML = Icons.send(disabled);
   },
 
+  wireLista(container) {
+    container.querySelectorAll(".sidebar-chat-item").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const id = Number(btn.getAttribute("data-chat-id"));
+        this.abrirChat(container, id);
+      });
+    });
+
+    container.querySelectorAll(".chat-action-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const id = Number(btn.getAttribute("data-chat-id"));
+        if (btn.getAttribute("data-action") === "rename") this.iniciarRenomear(container, id);
+        else this.excluirChat(container, id);
+      });
+    });
+
+    const editInput = container.querySelector(".sidebar-chat-edit");
+    if (editInput) {
+      const id = Number(editInput.getAttribute("data-chat-id"));
+      editInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          this.confirmarRenomear(container, id, editInput.value);
+        } else if (e.key === "Escape") {
+          this.cancelarRenomear(container);
+        }
+      });
+      editInput.addEventListener("blur", () =>
+        this.confirmarRenomear(container, id, editInput.value),
+      );
+      editInput.focus();
+      editInput.select();
+    }
+  },
+
   wire(container) {
     const local = this._local;
 
@@ -354,39 +524,12 @@ Screens.chat = {
     if (novoChatBtn)
       novoChatBtn.addEventListener("click", () => this.novoChat(container));
 
-    container.querySelectorAll(".sidebar-chat-item").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const id = Number(btn.getAttribute("data-chat-id"));
-        this.abrirChat(container, id);
-      });
-    });
+    const buscarBtn = container.querySelector("#buscar-chats-btn");
+    if (buscarBtn)
+      buscarBtn.addEventListener("click", () => this.toggleBusca(container));
+    this.wireBusca(container);
 
-    container.querySelectorAll(".chat-action-btn").forEach((btn) => {
-      btn.addEventListener("click", (e) => {
-        e.stopPropagation();
-        const id = Number(btn.getAttribute("data-chat-id"));
-        if (btn.getAttribute("data-action") === "rename") this.iniciarRenomear(container, id);
-        else this.excluirChat(container, id);
-      });
-    });
-
-    const editInput = container.querySelector(".sidebar-chat-edit");
-    if (editInput) {
-      const id = Number(editInput.getAttribute("data-chat-id"));
-      editInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-          e.preventDefault();
-          this.confirmarRenomear(container, id, editInput.value);
-        } else if (e.key === "Escape") {
-          this.cancelarRenomear(container);
-        }
-      });
-      editInput.addEventListener("blur", () =>
-        this.confirmarRenomear(container, id, editInput.value),
-      );
-      editInput.focus();
-      editInput.select();
-    }
+    this.wireLista(container);
 
     const input = container.querySelector("#chat-input");
     const sendBtn = container.querySelector("#chat-send-btn");

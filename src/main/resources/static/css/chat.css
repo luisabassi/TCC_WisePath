@@ -178,3 +178,14 @@
 @media (max-width: 767px) {
   .chat-sidebar.open { position: fixed; left: 0; top: 0; height: 100%; z-index: 20; }
 }
+
+/* Campo de busca de chats (abre ao clicar em "Buscar chats") */
+.sidebar-search-input {
+  width: 100%; box-sizing: border-box; font: inherit; font-size: 13px; font-weight: 600;
+  color: #0d1b4b; padding: 9px 14px; background: white;
+  border: 2px solid #cbd0dd; border-radius: 999px; outline: none;
+  transition: border-color 0.15s;
+}
+.sidebar-search-input:focus { border-color: #0d1b4b; }
+.sidebar-search-input::placeholder { color: #9aa1b8; font-weight: 500; }
+.sidebar-empty { font-size: 13px; color: #6b7280; padding: 8px; margin: 0; }
