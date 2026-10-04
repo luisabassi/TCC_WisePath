@@ -58,7 +58,7 @@ Screens.welcome = {
 
     container.querySelector("#welcome-logout").addEventListener("click", () => {
       Auth.limpar();
-      setView("login");
+       setView("login", { replace: true }); // controla o histórico de navegação
     });
     
     container.querySelector("#welcome-avatar").addEventListener("click", () => setView("settings"));

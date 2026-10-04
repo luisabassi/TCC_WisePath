@@ -1,5 +1,5 @@
 // ─── Tela: Chat ─────────────────────────────────────────────────────────────
-// 1 mensagem de abertura + 4 respostas do roteiro Ikigai (ver GeminiService.PERGUNTAS_IKIGAI)
+// 1 mensagem de abertura + 4 respostas do roteiro Ikigai 
 const TOTAL_RESPOSTAS = 5;
 
 Screens.chat = {
@@ -103,7 +103,7 @@ Screens.chat = {
 
   async confirmarRenomear(container, idChat, novoNome) {
     const local = this._local;
-    if (local.editingChatId !== idChat) return; // evita salvar 2x (Enter + blur)
+    if (local.editingChatId !== idChat) return; // evita salvar 2x 
     local.editingChatId = null;
 
     const nome = novoNome.trim();
@@ -347,7 +347,7 @@ Screens.chat = {
       .querySelector("#chat-logout-btn")
       .addEventListener("click", () => {
         Auth.limpar();
-        setView("login");
+        setView("login", { replace: true });
       });
 
     const novoChatBtn = container.querySelector("#novo-chat-btn");

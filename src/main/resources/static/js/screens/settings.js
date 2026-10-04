@@ -5,12 +5,11 @@
 // ─────────────────────────────────────────────────────────────────────────
 
 Screens.settings = {
-  // Estado local da tela (só existe enquanto o usuário está editando)
+  // Estado local da tela 
   _local: {
     tab: "perfil",
   },
 
-  // Volta para onde a pessoa estava antes de abrir as configurações
   goBack() {
     setView(AppState.previousView || "welcome");
   },
@@ -56,7 +55,7 @@ Screens.settings = {
     this.renderTab(container);
   },
 
-  // Desenha só o conteúdo da aba ativa (evita recriar o menu lateral inteiro)
+  // Desenha só o conteúdo da aba ativa 
   renderTab(container) {
     const content = container.querySelector("#settings-content");
     const renderers = {
@@ -126,10 +125,9 @@ Screens.settings = {
           profile.name = usuarioAtualizado.nome;
           profile.email = usuarioAtualizado.email;
 
-          // Mantém a sessão salva (localStorage) em sincronia com o back-end
+          // Mantém a sessão salva em sincronia com o back-end
           Auth.salvar({ ...sessao, nome: usuarioAtualizado.nome, email: usuarioAtualizado.email });
 
-          // Atualiza as iniciais mostradas no avatar sem recarregar a aba inteira
           const avatarBtn = content.querySelector(".avatar-picker-wrap .avatar");
           if (avatarBtn) avatarBtn.textContent = initials(usuarioAtualizado.nome);
 
@@ -196,7 +194,7 @@ Screens.settings = {
       saveBtn.disabled = true;
       saveBtn.textContent = "Salvando...";
 
-      // PUT /users/{id} — só manda a senha; nome e email ficam como estão
+      // PUT /users/{id} — só manda a senha;
       Api.atualizarPerfil(sessao.idUsuario, { senha: newPw })
         .then(() => {
           content.querySelector("#sec-new-pw").value = "";
@@ -260,14 +258,12 @@ Screens.settings = {
       deleteBtn.disabled = true;
       deleteBtn.textContent = "Excluindo...";
 
-      // Reautentica com a senha digitada para confirmar que é realmente o dono da conta,
-      // e só então chama o DELETE /users/{id}.
       Api.login(sessao.email, pw)
         .then(() => Api.excluirConta(sessao.idUsuario))
         .then(() => {
           Auth.limpar();
           AppState.profile = { name: "", email: "" };
-          setView("login");
+          setView("login", { replace: true });
         })
         .catch((err) => {
           feedback.innerHTML = `<p class="feedback-err">${escapeHtml(err.message)}</p>`;
@@ -283,7 +279,7 @@ Screens.settings = {
       ["Desenvolvido por", "Equipe WisePath"],
       ["Tecnologia", "Ikigai + IA"],
       ["Público-alvo", "Jovens do ensino médio"],
-      ["Última atualização", "Setembro 2026"],
+      ["Última atualização", "Outubro - 2026"],
       ["Suporte", "suporte@wisepath.com.br"],
     ];
 
@@ -321,8 +317,7 @@ Screens.settings = {
 
     content.querySelector("#sobre-voltar").addEventListener("click", () => this.goBack());
   },
-
-  // Mostra uma mensagem de sucesso por ~2.2s
+  
   flash(feedbackEl, message) {
     feedbackEl.innerHTML = `<p class="feedback-ok">✓ ${message}</p>`;
     setTimeout(() => {

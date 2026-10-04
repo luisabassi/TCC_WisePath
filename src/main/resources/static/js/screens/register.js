@@ -71,7 +71,7 @@ Screens.register = {
           AppState.profile.name = sessao.nome;
           AppState.profile.email = sessao.email;
           AppState.profile.photo = null;
-          setView("welcome");
+          setView("welcome", { replace: true });
         })
         .catch((err) => {
           feedback.innerHTML = `<p class="feedback-err">${escapeHtml(err.message)}</p>`;

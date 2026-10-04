@@ -59,7 +59,7 @@ Screens.login = {
           Auth.salvar(sessao);
           AppState.profile.name = sessao.nome;
           AppState.profile.email = sessao.email;
-          setView("welcome");
+          setView("welcome", { replace: true });
         })
         .catch((err) => {
           feedback.innerHTML = `<p class="feedback-err">${escapeHtml(err.message)}</p>`;

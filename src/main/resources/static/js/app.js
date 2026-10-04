@@ -9,5 +9,12 @@ document.addEventListener("DOMContentLoaded", () => {
     AppState.profile.email = sessao.email;
     AppState.view = "welcome";
   }
+
+
+  //A tela inicial vem da URL
+  //Caminho desconhecido ou "/" cai em /inicio (logado) ou /login(deslogado)
+  const view = resolveView(viewFromPath(window.location.pathname));
+  AppState.view = view;
+  window.history.replaceState({view}, "", ROUTES[view]);
   renderCurrentView();
 });

@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import wisepath.code.controller.SpaController;
 import wisepath.code.security.JwtAuthenticationFilter;
 
 @Configuration
@@ -36,6 +37,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/users").permitAll()
                 .requestMatchers(HttpMethod.POST, "/users/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/", "/index.html", "/css/**", "/js/**", "/assets/**", "/favicon.ico", "/error").permitAll()
+                .requestMatchers(HttpMethod.GET, SpaController.ROTAS_FRONT).permitAll() //rotas do front-end
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
