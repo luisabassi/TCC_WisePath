@@ -309,16 +309,14 @@ Screens.chat = {
 
     const profissoes = (resultado.profissoes || [])
       .map((p, i) => {
-        const salario =
-          typeof p.mediaSalarial === "number"
-            ? `${brl.format(p.mediaSalarial)} / mês`
-            : "não informada";
         return [
           `**${i + 1}. ${p.nome}**`,
           p.descricao || "",
-          `**Média salarial:** ${salario}`,
+          `**Média salarial:** ${p.mediaSalarial || "não informada"}`,
           `**Empregabilidade:** ${p.empregabilidade || "não informada"}`,
           `**Tendências futuras:** ${p.tendenciasFuturas || "não informadas"}`,
+          `**Como começar:** ${p.comoComecar || "não informado"}`,
+          `**Cursos relacionados:** ${p.cursosRelacionados || "não informados"}`,
         ]
           .filter(Boolean)
           .join("\n");

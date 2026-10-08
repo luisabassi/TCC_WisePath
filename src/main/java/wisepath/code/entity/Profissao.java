@@ -32,14 +32,20 @@ public class Profissao {
     @Column(columnDefinition = "TEXT")
     private String descricao;
 
-    @Column
-    private Double mediaSalarial;
+    @Column(columnDefinition = "TEXT")
+    private  String mediaSalarial;
+
+    @Column(length = 500)
+    private String empregabilidade;
 
     @Column(columnDefinition = "TEXT")
     private String tendenciasFuturas;
 
-    @Column(length = 500)
-    private String empregabilidade;
+    @Column(columnDefinition = "TEXT")
+    private String comoComecar;
+
+    @Column(columnDefinition = "TEXT")
+    private String cursosRelacionados; 
 
     @ManyToMany(mappedBy = "profissoes")
     private List<Resultado> resultados;

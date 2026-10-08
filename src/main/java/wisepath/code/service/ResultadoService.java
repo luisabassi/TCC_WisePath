@@ -56,7 +56,9 @@ public class ResultadoService {
                     dto.descricao(),
                     dto.mediaSalarial(),
                     dto.empregabilidade(), 
-                    dto.tendenciasFuturas()
+                    dto.tendenciasFuturas(),
+                    dto.comoComecar(), 
+                    dto.cursosRelacionados()
             );
             profissoes.add(profissao);
         }

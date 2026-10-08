@@ -52,12 +52,14 @@ public class GeminiService {
             "properties", Map.of(
                 "nome", Map.of("type", "STRING"),
                 "descricao", Map.of("type", "STRING"),
-                "mediaSalarial", Map.of("type", "NUMBER"),
+                "mediaSalarial", Map.of("type", "STRING"),
                 "empregabilidade", Map.of("type", "STRING"),
-                "tendenciasFuturas", Map.of("type", "STRING")  
+                "tendenciasFuturas", Map.of("type", "STRING"), 
+                "comoComecar", Map.of("type", "STRING"),
+                "cursosRelacionados", Map.of("type", "STRING")
     ),
     "required", List.of("nome", "descricao", "mediaSalarial",
-                        "empregabilidade", "tendenciasFuturas")   // novo
+                        "empregabilidade", "tendenciasFuturas", "comoComecar", "cursosRelacionados")   // novo
 );
 
         Map<String,Object> schema = Map.of(
@@ -188,10 +190,13 @@ public class GeminiService {
               {"centro":"Ikigai","ramos":[{"dimensao":"Paixão","itens":["..."]},{"dimensao":"Talento","itens":["..."]},{"dimensao":"Missão","itens":["..."]},{"dimensao":"Vocação","itens":["..."]}]}
             - "profissoes": exatamente 3, da mais para a menos aderente ao perfil.
               - descricao: de 10 a 700 caracteres: o que a profissão faz e por que combina com ESTE usuário.
-              - mediaSalarial: número, média salarial mensal em reais (BRL) no Brasil, sem símbolo nem texto.
+              - mediaSalarial: uma média salarial indo de um nível mais júnior até um nível mais sênior. Explicando essa faixa salarial.
               - empregabilidade: "Alta", "Média" ou "Baixa" seguida de uma justificativa curta.
               -- tendenciasFuturas: 2 a 3 frases sobre como a profissão deve evoluir nos próximos 5 a 10 anos no Brasil (impacto de IA e automação, demanda crescente ou em queda, novas habilidades exigidas). Não invente números ou estatísticas.
-            Use apenas o que o usuário disse; não invente fatos sobre ele.
+                Use apenas o que o usuário disse; não invente fatos sobre ele.
+              -- comoComecar: explica como entrar na área que essa profissao se encaixa. 
+              -- cursosRelacionados: cite quais cursos de faculdade a pessoa pode seguir no ensino superior. 
+                Use apenas cursos existentes no Brasil, não invente fatos sobre eles. 
 
             Conversa:
             %s
