@@ -158,7 +158,7 @@
   flex: 1; border: none; outline: none; font-size: 14px;
   color: #0d1b4b; background: transparent; font-family: inherit;
 }
-.chat-input::placeholder { color: #b0b8c8; }
+.chat-input::placeholder { color: #5d687d; }
 .send-btn {
   background: none; border: none; cursor: pointer; padding: 2px;
   display: flex; align-items: center; transition: opacity 0.15s;
@@ -166,7 +166,7 @@
 }
 .send-btn:disabled { opacity: 0.3; cursor: default; }
 .chat-footer {
-  text-align: center; font-size: 11px; color: #b0b8c8; margin-top: 6px;
+  text-align: center; font-size: 11px; color: #565c66; margin-top: 6px;
   max-width: 660px; margin-left: auto; margin-right: auto;
 }
 

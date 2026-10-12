@@ -3,10 +3,32 @@
    ───────────────────────────────────────────────────────────────────────── 
 */
 .welcome-nav {
-  display: flex; align-items: center; justify-content: space-between;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 14px 28px;
 }
-.welcome-nav-right { display: flex; align-items: center; gap: 12px; }
+
+.welcome-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+}
+
+.logout-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  color: inherit;
+  padding: 6px 10px;
+  border-radius: 10px;
+}
+.logout-btn:hover { background: rgba(0, 0, 0, 0.06); }
 
 .welcome-hero { text-align: center; padding: 40px 20px 24px; }
 .welcome-title { font-size: clamp(1.75rem, 5vw, 3rem); }

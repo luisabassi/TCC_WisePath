@@ -9,17 +9,20 @@ Screens.welcome = {
     container.innerHTML = `
       <div class="mesh-bg">
 
-        <nav class="welcome-nav">
-          <button class="icon-btn" id="welcome-logout" title="Sair">${Icons.logout}</button>
-          <div class="welcome-nav-right">
-            <div class="logo-row logo-row-sm">
-              <img src="${LOGO_SRC}" alt="WisePath" />
-              <span class="logo-text">WisePath</span>
-            </div>
-            ${avatarHTML(profile, 42, 'id="welcome-avatar" title="Configurações"')}
-          </div>
-        </nav>
-
+       <nav class="welcome-nav">
+        <div class="logo-row logo-row-sm">
+          <img src="${LOGO_SRC}" alt="WisePath" />
+          <span class="logo-text">WisePath</span>
+        </div>
+        <div class="welcome-nav-right">
+          <button class="logout-btn" id="welcome-logout" title="Sair">
+            ${Icons.logout}
+            <span>Sair</span>
+          </button>
+          ${avatarHTML(profile, 42, 'id="welcome-avatar" title="Configurações"')}
+        </div>
+      </nav>
+      
         <div class="welcome-hero">
           <h1 class="h1 welcome-title">Bem vindo(a) ao WisePath!</h1>
           <p class="muted welcome-subtitle">
@@ -28,7 +31,7 @@ Screens.welcome = {
           </p>
           <div class="welcome-btns">
             <button class="btn-primary" id="welcome-start">Iniciar conversa</button>
-            <button class="btn-outline" id="welcome-history">Ver histórico</button>
+            <button class="btn-outline" id="welcome-history">Ver mapas mentais</button>
           </div>
         </div>
 
@@ -63,6 +66,6 @@ Screens.welcome = {
     
     container.querySelector("#welcome-avatar").addEventListener("click", () => setView("settings"));
     container.querySelector("#welcome-start").addEventListener("click", () => setView("chat"));
-    container.querySelector("#welcome-history").addEventListener("click", () => setView("chat"));
+    container.querySelector("#welcome-history").addEventListener("click", () => setView("maps"));
   },
 };
