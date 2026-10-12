@@ -56,12 +56,13 @@ public class GeminiService {
                 "empregabilidade", Map.of("type", "STRING"),
                 "tendenciasFuturas", Map.of("type", "STRING"), 
                 "comoComecar", Map.of("type", "STRING"),
-                "cursosRelacionados", Map.of("type", "STRING")
-    ),
-    "required", List.of("nome", "descricao", "mediaSalarial",
-                        "empregabilidade", "tendenciasFuturas", "comoComecar", "cursosRelacionados")   // novo
-);
+                "cursosRelacionados", Map.of("type", "STRING")),
+            "required", List.of("nome", "descricao", "mediaSalarial",
+                "empregabilidade", "tendenciasFuturas", 
+                "comoComecar", "cursosRelacionados") 
+        );
 
+        //Resposta que API do Gemini deve retornar 
         Map<String,Object> schema = Map.of(
             "type", "OBJECT",
             "properties", Map.of(
@@ -77,6 +78,9 @@ public class GeminiService {
             "required", List.of("resumo", "jsonMapaMental", "profissoes")
         );
 
+
+        //Montagem da requisição p/ Gemini para forçá-lo a devolver um
+        //JSON estruturado com campos específicos
         Map<String,Object> body = Map.of(
             "contents", List.of(Map.of(
                 "parts",List.of(Map.of("text",prompt))
@@ -84,7 +88,7 @@ public class GeminiService {
             "generationConfig",Map.of(
                 "responseMimeType", "application/json",
                 "responseSchema", schema,
-                "temperature", 0.4
+                "temperature", 0.4 //faz a resposta ser mais controlada
             )
         );
 
@@ -186,15 +190,25 @@ public class GeminiService {
             o que o mundo precisa e pelo que poderia ser pago. Gere a análise final.
 
             - "resumo": 3 a 5 frases conectando as 4 dimensões do Ikigai do usuário.
+
+            //resposta que aparece na aba do mapa mental
             - "jsonMapaMental": uma STRING contendo um JSON válido, no formato:
-              {"centro":"Ikigai","ramos":[{"dimensao":"Paixão","itens":["..."]},{"dimensao":"Talento","itens":["..."]},{"dimensao":"Missão","itens":["..."]},{"dimensao":"Vocação","itens":["..."]}]}
+                {"centro":"Ikigai","ramos":
+                 [{"dimensao":"Paixão","itens":["..."]},
+                 {"dimensao":"Talento","itens":["..."]},
+                 {"dimensao":"Missão","itens":["..."]},
+                 {"dimensao":"Vocação","itens":["..."]}]}
+              Em "itens", use de 2 a 4 tópicos curtos por dimensão (no máximo 40 caracteres cada),
+              em português, extraídos apenas do que o usuário disse; eles viram os nós do mapa mental.
+
+            //resposta que aparece no chat
             - "profissoes": exatamente 3, da mais para a menos aderente ao perfil.
               - descricao: de 10 a 700 caracteres: o que a profissão faz e por que combina com ESTE usuário.
               - mediaSalarial: uma média salarial indo de um nível mais júnior até um nível mais sênior. Explicando essa faixa salarial.
               - empregabilidade: "Alta", "Média" ou "Baixa" seguida de uma justificativa curta.
               -- tendenciasFuturas: 2 a 3 frases sobre como a profissão deve evoluir nos próximos 5 a 10 anos no Brasil (impacto de IA e automação, demanda crescente ou em queda, novas habilidades exigidas). Não invente números ou estatísticas.
                 Use apenas o que o usuário disse; não invente fatos sobre ele.
-              -- comoComecar: explica como entrar na área que essa profissao se encaixa. 
+              -- comoComecar:  2 a 3 frases explicando como entrar na área que essa profissao se encaixa. 
               -- cursosRelacionados: cite quais cursos de faculdade a pessoa pode seguir no ensino superior. 
                 Use apenas cursos existentes no Brasil, não invente fatos sobre eles. 
 
@@ -206,20 +220,30 @@ public class GeminiService {
     @SuppressWarnings("unchecked")
     private String extrairTexto(Map<?,?> resposta){
         if(resposta == null){
-           throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "A IA não retornou nenhuma resposta.");
+           throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, 
+            "A IA não retornou nenhuma resposta.");
         }
 
+        // A API retorna as respostas possíveis no campo "candidates".
         var candidates = (List<Map<String, Object>>) resposta.get("candidates");
+        
         if(candidates == null || candidates.isEmpty()){
             log.warn("Gemini sem candidatos. Resposta bruta: {}", resposta);
-            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "A IA não retornou uma resposta válida. Tente novamente.");
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
+                 "A IA não retornou uma resposta válida. Tente novamente.");
         }
 
+        // Usa o primeiro candidato e acessa o conteúdo gerado.
         var content = (Map<String, Object>) candidates.get(0).get("content");
+
+        // O texto da resposta fica nos blocos de conteúdo do campo "parts".
         var parts = content != null ? (List<Map<String, Object>>) content.get("parts") : null;
+
+        
         if(parts == null || parts.isEmpty() || parts.get(0).get("text") == null) {
             log.warn("Gemini com formato inesperado. Resposta bruta: {}", resposta);
-            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "A IA retornou uma resposta em formato inesperado. Tente novamente.");
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, 
+                "A IA retornou uma resposta em formato inesperado. Tente novamente.");
         }
 
        return (String) parts.get(0).get("text");

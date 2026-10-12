@@ -84,6 +84,11 @@ public class ResultadoService {
         return resultadoRepository.findByChatIdChatOrderByIdResultadoDesc(idChat);
     }
 
+    @Transactional(readOnly = true)
+    public List<Resultado> listarPorUsuario(Long idUsuario){
+        return resultadoRepository.findByChatUsuarioIdUsuarioOrderByIdResultadoDesc(idUsuario);
+    }
+
     @Transactional
     public void deletar(Long idResultado) {
         if (!resultadoRepository.existsById(idResultado)) {
