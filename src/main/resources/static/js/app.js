@@ -15,6 +15,6 @@ document.addEventListener("DOMContentLoaded", () => {
   //Caminho desconhecido ou "/" cai em /inicio (logado) ou /login(deslogado)
   const view = resolveView(viewFromPath(window.location.pathname));
   AppState.view = view;
-  window.history.replaceState({view}, "", ROUTES[view]);
+  window.history.replaceState({view}, "", pathFor(view));
   renderCurrentView();
 });

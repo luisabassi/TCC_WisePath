@@ -19,6 +19,11 @@ function escapeHtml(str) {
   return div.innerHTML;
 }
 
+// Igual ao escapeHtml, mas também escapa aspas
+function escapeAttr(str) {
+  return escapeHtml(str).replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
 // Converte **negrito** e quebras de linha em HTML seguro
 function renderMsg(text) {
   const escaped = escapeHtml(text);
@@ -62,4 +67,3 @@ function wireFieldToggles(container) {
     });
   });
 }
-

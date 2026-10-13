@@ -26,7 +26,6 @@ const Api = {
 
 
     //Usuários
-    // POST /users — cria uma nova conta
     cadastrar(nome, email, senha) {
       return this._request("/users", {
         method: "POST",
@@ -34,7 +33,6 @@ const Api = {
       });
     },
 
-    // POST /users/login — autentica e retorna { idUsuario, nome, email, token }
     login(email, senha) {
       return this._request("/users/login", {
         method: "POST",
@@ -68,7 +66,7 @@ const Api = {
     },
 
     renomearChat(idChat, nome){
-      return this._request(`chats/${idChat}`, {
+      return this._request(`/chats/${idChat}`, {
         method: "PUT",
         body: JSON.stringify({ nome }),
       });
@@ -86,7 +84,7 @@ const Api = {
 
     //Mensagens
     listarMensagens(idChat){
-      return this._request(`chats/${idChat}/mensagens`);
+      return this._request(`/chats/${idChat}/mensagens`);
     }, 
 
     enviarMensagem(idChat, conteudo){
@@ -105,5 +103,9 @@ const Api = {
         method:"POST",
       });
     },
-};
 
+    //Mapas mentais 
+    listarMapas(){
+      return this._request("/mapamental");
+    },
+};

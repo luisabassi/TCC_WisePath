@@ -1,8 +1,9 @@
 // ─── Estado global ──────────────────────────────────────────────────────────
 
 const AppState = {
-  view: "register", // register | login | welcome | chat | settings
+  view: "register", // register | login | welcome | chat | settings | maps | mapDetail
   previousView: "welcome", // para onde o botão "voltar" das configurações leva
+  selectedMapId: null, // mapa aberto na tela de detalhe (/mapas/:id)
   profile: {
     name: "",
     email: "",
@@ -17,30 +18,46 @@ const ROUTES = {
   welcome: "/inicio",
   chat: "/chat",
   settings: "/configuracoes",
+  maps: "/mapas",
 };
 
-//Telas que exigem sessao (token)
-const PROTECTED_VIEWS = ["welcome", "chat", "settings"];
+const MAP_DETAIL_PATH = /^\/mapas\/(\d+)$/;
+
+
+const PROTECTED_VIEWS = ["welcome", "chat", "settings", "maps", "mapDetail"];
+
+// URL de cada tela 
+function pathFor(view){
+  if(view === "mapDetail"){
+    return AppState.selectedMapId ? `/mapas/${AppState.selectedMapId}` : ROUTES.maps;
+  }
+  return ROUTES[view];
+}
+
 
 function viewFromPath(pathname){
   const path = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
+  const detalhe = path.match(MAP_DETAIL_PATH);
+  if(detalhe){
+    AppState.selectedMapId = detalhe[1];
+    return "mapDetail";
+  }
   const entry = Object.entries(ROUTES).find((([,p]) => p === path));
   return entry ? entry[0] : null;
 }
 
-//Proteção de rotas no front: sem sessao não entra em telas privadas,
-//e com sessao não faz sentido voltar para login/cadastro
+//Proteção de rotas no front
 function resolveView(view){
   const logado = !!Auth.getToken();
   if(!view) return logado ? "welcome" : "login";
+  if(view === "mapDetail" && !AppState.selectedMapId) return logado ? "maps" : "login";
   if(PROTECTED_VIEWS.includes(view) && !logado) return "login";
   if (!PROTECTED_VIEWS.includes(view) && logado) return "welcome";
   return view;
 }
 
 
-//Troca de tela: cada screen.render() recebe o container e o AppState
-//Guarda a tela atual como "anterior" antes de trocar, exceto ao entrar em settings
+//Troca de tela
 function setView(view, opts = {}){
   view = resolveView(view);
 
@@ -49,7 +66,7 @@ function setView(view, opts = {}){
   }
   AppState.view = view;
 
-  const path = ROUTES[view];
+  const path = pathFor(view);
   if(path && window.location.pathname !== path){
     const method = opts.replace ? "replaceState" : "pushState";
     window.history[method]({view}, "", path);
@@ -67,8 +84,9 @@ window.addEventListener("popstate", () => {
   }
   AppState.view = view;
 
-  if (ROUTES[view] && window.location.pathname !== ROUTES[view]) {
-    window.history.replaceState({ view }, "", ROUTES[view]);
+  const path = pathFor(view);
+  if (path && window.location.pathname !== path) {
+    window.history.replaceState({ view }, "", path);
   }
   renderCurrentView();
   
@@ -93,6 +111,12 @@ function renderCurrentView() {
       break;
     case "chat":
       Screens.chat.render(container);
+      break;
+    case "maps":
+      Screens.maps.render(container);
+      break;
+    case "mapDetail":
+      Screens.mapDetail.render(container);
       break;
     default:
       Screens.register.render(container);

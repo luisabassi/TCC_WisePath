@@ -28,5 +28,7 @@ const Auth = {
   // Remove a sessão salva (usado no logout).
   limpar() {
     localStorage.removeItem(this.STORAGE_KEY);
+
+    if (typeof MapStore !== "undefined") MapStore.limpar();
   },
 };
