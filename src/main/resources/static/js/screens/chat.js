@@ -21,10 +21,17 @@ Screens.chat = {
     searchError: null,
     buscaSeq: 0, // identifica a busca mais recente (descarta respostas antigas)
     buscaTimer: null, // debounce da digitação
+    chatParaAbrir: null, // pedido vindo de outra tela (ex.: "Ver conversa" no mapa mental)
   },
 
   isMobile() {
     return window.innerWidth < 768;
+  },
+
+  // Chamado por outras telas antes de setView("chat"): o chat abre essa conversa
+  // em vez de abrir a mais recente.
+  solicitarAbertura(idChat) {
+    this._local.chatParaAbrir = idChat;
   },
 
   async carregarChats(container) {
@@ -149,6 +156,8 @@ Screens.chat = {
     }
 
     local.chats = local.chats.filter((c) => c.idChat !== idChat);
+    // o back-end apaga o resultado e o mapa mental junto com o chat
+    MapStore.maps = MapStore.maps.filter((m) => m.idChat !== idChat);
     if (local.searchResults)
       local.searchResults = local.searchResults.filter((c) => c.idChat !== idChat);
     local.error = null;
@@ -316,7 +325,7 @@ Screens.chat = {
           `**Empregabilidade:** ${p.empregabilidade || "não informada"}`,
           `**Tendências futuras:** ${p.tendenciasFuturas || "não informadas"}`,
           `**Como começar:** ${p.comoComecar || "não informado"}`,
-          `**Cursos relacionados:** ${p.cursosRelacionados || "não informados"}`,
+          `**Cursos superiores relacionados:** ${p.cursosRelacionados || "não informados"}`,
         ]
           .filter(Boolean)
           .join("\n");
@@ -327,11 +336,22 @@ Screens.chat = {
       id: `resultado-${resultado.idResultado}`,
       role: "assistant",
       content: `${resultado.resumo}\n\n**Profissões sugeridas:**\n\n${profissoes}`,
+      // o mapa mental nasce junto com o resultado: a mensagem ganha o atalho para ele
+      mapId: resultado.mapaMental ? String(resultado.mapaMental.idMapaMental) : null,
     };
   },
 
   render(container) {
     const local = this._local;
+
+    // Veio de outra tela pedindo uma conversa específica: abrirChat() já chama render() de novo
+    if (local.chatParaAbrir) {
+      const idChat = local.chatParaAbrir;
+      local.chatParaAbrir = null;
+      this.abrirChat(container, idChat);
+      return;
+    }
+
     if (this.isMobile()) local.sidebarOpen = false;
 
     if (!local.chatsLoaded) this.carregarChats(container);
@@ -357,6 +377,7 @@ Screens.chat = {
           <div class="sidebar-recents">${this.recentsHTML()}</div>
           <div class="sidebar-bottom">
             <button class="icon-btn" id="chat-home-btn" title="Início">${Icons.home}</button>
+            <button class="icon-btn" id="chat-maps-btn" title="Meus mapas mentais">${Icons.mapIcon}</button>
             <button class="icon-btn" id="chat-logout-btn" title="Sair">${Icons.logoutSm}</button>
           </div>
         </aside>
@@ -415,7 +436,18 @@ Screens.chat = {
         (msg) => `
       <div class="msg-row msg-row-in ${msg.role === "user" ? "user" : ""}">
         ${msg.role === "assistant" ? `<img src="${LOGO_SRC}" alt="bot" class="msg-avatar" />` : ""}
-        <div class="msg-bubble ${msg.role === "user" ? "user" : "bot"}" style="${msg.pending ? "opacity:0.6;" : ""}">${renderMsg(msg.content)}</div>
+        ${
+          msg.mapId
+            ? `<div class="msg-stack">
+                <div class="msg-bubble bot">${renderMsg(msg.content)}</div>
+                <button class="map-cta" data-map-id="${escapeAttr(msg.mapId)}">
+                  <span class="map-cta-icon">${Icons.mapIcon.replace("#9ca3af", "#fff")}</span>
+                  <span class="map-cta-text"><strong>Seu mapa mental está pronto</strong><small>Toque para visualizar</small></span>
+                  <span class="map-cta-arrow">→</span>
+                </button>
+              </div>`
+            : `<div class="msg-bubble ${msg.role === "user" ? "user" : "bot"}" style="${msg.pending ? "opacity:0.6;" : ""}">${renderMsg(msg.content)}</div>`
+        }
       </div>
     `,
       )
@@ -433,6 +465,13 @@ Screens.chat = {
       : "";
 
     wrap.innerHTML = `<div class="chat-messages-list">${msgsHTML}${typingHTML}<div id="chat-bottom-anchor"></div></div>`;
+
+    wrap.querySelectorAll(".map-cta").forEach((btn) =>
+      btn.addEventListener("click", () => {
+        AppState.selectedMapId = btn.getAttribute("data-map-id");
+        setView("mapDetail");
+      }),
+    );
 
     const anchor = wrap.querySelector("#chat-bottom-anchor");
     if (anchor) anchor.scrollIntoView({ behavior: "smooth" });
@@ -511,6 +550,9 @@ Screens.chat = {
     container
       .querySelector("#chat-home-btn")
       .addEventListener("click", () => setView("welcome"));
+    container
+      .querySelector("#chat-maps-btn")
+      .addEventListener("click", () => setView("maps"));
     container
       .querySelector("#chat-logout-btn")
       .addEventListener("click", () => {
@@ -615,6 +657,7 @@ Screens.chat = {
 
     try{
       const resultado = await Api.gerarResultado(local.chatId);
+      if (resultado.mapaMental) MapStore.marcarNovo(resultado.mapaMental.idMapaMental);
       local.messages.push(this.montarMensagemResultado(resultado));
       local.stage = TOTAL_RESPOSTAS;
     }catch(err){
