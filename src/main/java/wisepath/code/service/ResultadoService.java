@@ -1,7 +1,8 @@
 package wisepath.code.service;
 
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -45,7 +46,7 @@ public class ResultadoService {
 
         MapaMental mapaMental = mapaMentalService.criarMapaMental(jsonMapaMental);
 
-        List<Profissao> profissoes = new ArrayList<>();
+        Set<Profissao> profissoes = new LinkedHashSet<>();
         for (ProfissaoDTO dto : profissaoDTO) {
             if (dto.mediaSalarial() == null) {
                 throw new IllegalArgumentException("A media salarial é obrigatória para cada profissao sugerida.");
@@ -65,9 +66,9 @@ public class ResultadoService {
 
         Resultado resultado = new Resultado();
         resultado.setResumo(resumo);
+        resultado.setChat(chat);
         resultado.setMapaMental(mapaMental);
         resultado.setProfissoes(profissoes);
-        chat.adicionarResultado(resultado);
 
         return resultadoRepository.save(resultado);
     }

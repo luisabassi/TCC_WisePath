@@ -1,6 +1,7 @@
 package wisepath.code.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,11 +42,9 @@ public class ProfissaoService {
         
         String nomeNormal = nome.trim(); 
 
-        List<Profissao> encontradas = profissaoRepository.findByNomeContainingIgnoreCase(nomeNormal);
-        for (Profissao profissao : encontradas) {
-            if (profissao.getNome().equalsIgnoreCase(nomeNormal)) {
-                return profissao;
-            }
+        Optional<Profissao> existente = profissaoRepository.findByNomeIgnoreCase(nomeNormal);
+        if (existente.isPresent()) {
+            return existente.get();
         }
 
         Profissao novaProfissao = new Profissao();

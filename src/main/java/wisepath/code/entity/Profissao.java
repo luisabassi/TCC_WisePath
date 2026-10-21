@@ -1,7 +1,7 @@
 package wisepath.code.entity;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -27,7 +27,7 @@ public class Profissao {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idProfissao;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String nome;
 
     @Column(columnDefinition = "TEXT")
@@ -49,5 +49,5 @@ public class Profissao {
     private String cursosRelacionados; 
 
     @ManyToMany(mappedBy = "profissoes")
-    private List<Resultado> resultados = new ArrayList<>();
+    private Set<Resultado> resultados = new LinkedHashSet<>();
 }

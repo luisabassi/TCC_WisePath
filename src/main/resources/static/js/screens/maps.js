@@ -223,7 +223,6 @@ Screens.mapDetail = {
     });
   },
 
-  // Tela "casca" (carregando / não encontrado / erro), com o botão de voltar
   renderShell(container, mensagem, comErro) {
     container.innerHTML = `
       <div class="mesh-bg maps-page">
