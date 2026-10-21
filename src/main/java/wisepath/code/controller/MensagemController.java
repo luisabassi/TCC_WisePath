@@ -50,8 +50,6 @@ public class MensagemController {
 
         Mensagem mensagemUsuario = mensagemService.enviarMensagem(chat, dto.conteudo(), Mensagem.AutorMensagem.USUARIO);
 
-        chat.getMensagens().add(mensagemUsuario);
-
         String textoResposta = geminiService.responderMensagem(chat);
 
         Mensagem mensagemBot = mensagemService.enviarMensagem(chat, textoResposta, Mensagem.AutorMensagem.CHATBOT);
@@ -99,5 +97,3 @@ public class MensagemController {
     }
 
 }
-
-

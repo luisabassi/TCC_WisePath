@@ -20,7 +20,7 @@ public class MensagemService{
         Mensagem mensagem = new Mensagem();
         mensagem.setConteudo(conteudo);
         mensagem.setAutor(autor);
-        mensagem.setChat(chat);
+        chat.adicionarMensagem(mensagem);
         return mensagemRepository.save(mensagem);
     }
 

@@ -65,9 +65,9 @@ public class ResultadoService {
 
         Resultado resultado = new Resultado();
         resultado.setResumo(resumo);
-        resultado.setChat(chat);
         resultado.setMapaMental(mapaMental);
         resultado.setProfissoes(profissoes);
+        chat.adicionarResultado(resultado);
 
         return resultadoRepository.save(resultado);
     }
