@@ -2,7 +2,6 @@ package wisepath.code.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -10,12 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import wisepath.code.entity.Chat;
-import wisepath.code.entity.MapaMental;
 import wisepath.code.entity.Mensagem;
 import wisepath.code.entity.Resultado;
 import wisepath.code.entity.Usuario;
 import wisepath.code.repository.ChatRepository;
-import wisepath.code.repository.MapaMentalRepository;
 import wisepath.code.repository.MensagemRepository;
 import wisepath.code.repository.ResultadoRepository;
 
@@ -25,14 +22,12 @@ public class ChatService {
     private final ChatRepository chatRepository;
     private final MensagemRepository mensagemRepository;
     private final ResultadoRepository resultadoRepository;
-    private final MapaMentalRepository mapaMentalRepository;
 
     public ChatService(ChatRepository chatRepository, MensagemRepository mensagemRepository,
-            ResultadoRepository resultadoRepository, MapaMentalRepository mapaMentalRepository) {
+            ResultadoRepository resultadoRepository) {
         this.chatRepository = chatRepository;
         this.mensagemRepository = mensagemRepository;
         this.resultadoRepository = resultadoRepository;
-        this.mapaMentalRepository = mapaMentalRepository;
     }
 
     @Transactional
@@ -84,13 +79,7 @@ public class ChatService {
             .orElseThrow(() -> new IllegalArgumentException("Chat não encontrado."));
 
         List<Resultado> resultados = resultadoRepository.findByChatIdChatOrderByIdResultadoDesc(idChat);
-        List<MapaMental> mapas = resultados.stream()
-            .map(Resultado::getMapaMental)
-            .filter(Objects::nonNull)
-            .toList();
-
         resultadoRepository.deleteAll(resultados);
-        mapaMentalRepository.deleteAll(mapas);
         mensagemRepository.deleteAll(mensagemRepository.findByChatIdChatOrderByIdMensagemAsc(idChat));
 
         chatRepository.delete(chat);

@@ -43,13 +43,4 @@ public class MapaMentalService {
         return mapaMentalRepository.save(mapaMental);
     }
 
-    @Transactional
-    public void deletarMapaMental(Long idMapaMental){
-        if (!mapaMentalRepository.existsById(idMapaMental)) {
-            throw new IllegalArgumentException("Mapa mental não encontrado.");
-        }
-        
-        mapaMentalRepository.deleteById(idMapaMental);
-    }
-
 }

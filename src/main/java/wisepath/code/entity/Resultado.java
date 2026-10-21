@@ -39,7 +39,7 @@ public class Resultado {
     @JoinColumn(name = "idChat", nullable = false)
     private Chat chat;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "idMapa", nullable = false)
     private MapaMental mapaMental;
 

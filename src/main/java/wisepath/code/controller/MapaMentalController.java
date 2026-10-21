@@ -16,6 +16,7 @@ import jakarta.validation.Valid;
 import wisepath.code.dto.MapaMentalDTO;
 import wisepath.code.dto.MapaMentalResponseDTO;
 import wisepath.code.dto.MapaMentalResumoDTO;
+import wisepath.code.entity.Resultado;
 import wisepath.code.entity.Usuario;
 import wisepath.code.service.MapaMentalService;
 import wisepath.code.service.ResultadoService;
@@ -58,8 +59,8 @@ public class MapaMentalController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletarMapaMental(@AuthenticationPrincipal Usuario usuarioLogado,
             @PathVariable Long id) {
-        resultadoService.buscarResultadoDoUsuarioPorMapaMental(id, usuarioLogado.getIdUsuario());
-        mapaMentalService.deletarMapaMental(id);
+        Resultado resultado = resultadoService.buscarResultadoDoUsuarioPorMapaMental(id, usuarioLogado.getIdUsuario());
+        resultadoService.deletar(resultado.getIdResultado());
         return ResponseEntity.noContent().build();
     }
 }
