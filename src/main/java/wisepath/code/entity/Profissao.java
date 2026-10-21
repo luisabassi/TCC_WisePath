@@ -1,5 +1,6 @@
 package wisepath.code.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.Column;
@@ -48,5 +49,5 @@ public class Profissao {
     private String cursosRelacionados; 
 
     @ManyToMany(mappedBy = "profissoes")
-    private List<Resultado> resultados;
+    private List<Resultado> resultados = new ArrayList<>();
 }

@@ -7,6 +7,7 @@ import java.util.List;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -43,12 +44,19 @@ public class Chat {
     @OneToMany(mappedBy = "chat", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<Resultado> resultados = new ArrayList<>();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idUsuario", nullable = false)
     private Usuario usuario;
 
+    // Métodos auxiliares
+    public void adicionarMensagem(Mensagem novaMensagem) {
+        this.mensagens.add(novaMensagem);
+        novaMensagem.setChat(this);
+    }
+
     public void adicionarResultado(Resultado novoResultado) {
         this.resultados.add(novoResultado);
+        novoResultado.setChat(this);
     }
 
     // CascadeType.PERSIST:

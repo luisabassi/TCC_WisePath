@@ -1,5 +1,6 @@
 package wisepath.code.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jakarta.persistence.Column;
@@ -36,5 +37,5 @@ public class Usuario {
     private String senha;
 
     @OneToMany(mappedBy = "usuario")
-    private List<Chat> chats;
+    private List<Chat> chats = new ArrayList<>();
 }
