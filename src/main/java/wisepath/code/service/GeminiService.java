@@ -31,11 +31,22 @@ public class GeminiService {
 
     // Roteiro fixo do Ikigai: o backend controla em qual pergunta a conversa está.
     private static final List<String> PERGUNTAS_IKIGAI = List.of(
-        "o que a pessoa ama fazer (hobbies, atividades em que perde a noção do tempo)",
-        "no que a pessoa é naturalmente boa (habilidades pelas quais costuma ser elogiada)",
-        "o que a pessoa acha que o mundo precisa (causas, problemas que a movem)",
+        "o que a pessoa ama fazer (hobbies, atividades em que perde a noção do tempo) ",
+        "no que a pessoa é naturalmente boa (habilidades pelas quais costuma ser elogiada) ",
+        "o que a pessoa acha que o mundo precisa (causas, problemas que a movem) ",
         "pelo que a pessoa poderia ser paga (habilidades com valor de mercado)"
     );
+
+    // Resposta padrão enviada logo após a primeira mensagem do usuário (não passa pela IA).
+    private static final String MENSAGEM_INICIAL = """
+        Olá! Que bom ter você aqui. Eu sou o orientador do WisePath e vou te ajudar a descobrir carreiras que combinam com você usando o **Ikigai**, um conceito japonês que busca o ponto de encontro entre quatro dimensões da vida.
+
+        **Como vai funcionar:**
+        - Vou te fazer 4 perguntas, uma de cada vez: o que você ama fazer, no que você é bom, o que o mundo precisa e pelo que você poderia ser pago.
+        - Responda com suas próprias palavras. Não existe resposta certa ou errada, e quanto mais sincero você for, melhor será o resultado.
+        - Ao final, vou analisar tudo o que você contou e sugerir 3 profissões com média salarial, empregabilidade, tendências e cursos relacionados, além de montar o seu mapa mental do Ikigai.
+
+        Vamos lá!""";
 
     public GeminiService(@Value("${gemini.api.url}") String apiUrl,
             @Value("${gemini.api.key}") String apiKey) {
@@ -117,8 +128,10 @@ public class GeminiService {
             return "Obrigado por compartilhar tudo isso! Estou montando a sua análise de Ikigai...";
         }
 
+        boolean primeiraMensagem = respostasDoUsuario <= 1;
+
         String historico = montarHistorico(chat.getMensagens());
-        String prompt = montarPromptConversa(historico, Math.max(indice, 0));
+        String prompt = montarPromptConversa(historico, Math.max(indice, 0), primeiraMensagem);
 
         Map<String, Object> body = Map.of(
             "contents", List.of(Map.of(
@@ -128,7 +141,10 @@ public class GeminiService {
 
         Map<?,?> resposta = chamarGemini(body);
 
-        return extrairTexto(resposta).trim();
+        String texto = extrairTexto(resposta).trim();
+
+        // Na primeira mensagem, a explicação fixa vem antes da primeira pergunta.
+        return primeiraMensagem ? MENSAGEM_INICIAL + "\n\n" + texto : texto;
     }
 
     private Map<?,?> chamarGemini(Map<String, Object> body) {
@@ -140,7 +156,7 @@ public class GeminiService {
                         .retrieve()
                         .body(Map.class);
             } catch (HttpServerErrorException | ResourceAccessException e) {
-                // 5xx (503 alta demanda, 500, 504) e falhas de rede/timeout
+                // 5xx 
                 if (tentativa == MAX_TENTATIVAS) {
                     throw new ResponseStatusException(
                             HttpStatus.SERVICE_UNAVAILABLE,
@@ -158,20 +174,25 @@ public class GeminiService {
         throw new IllegalStateException("Inalcançável");
     }
 
-    public String montarPromptConversa(String historico, int indice){
+    public String montarPromptConversa(String historico, int indice, boolean primeiraMensagem){
+        String regraReacao = primeiraMensagem
+            ? "Uma mensagem de boas-vindas já foi enviada ao usuário: NÃO cumprimente e NÃO reaja à mensagem dele, vá direto à pergunta."
+            : "Antes da pergunta, reaja à última mensagem do usuário em no máximo 1 frase curta.";
+
         return """
             Você é um orientador profissional acolhedor que conduz uma conversa
             guiada usando o conceito de Ikigai.
 
             Regras:
             - Faça EXATAMENTE UMA pergunta: a pergunta %d de %d, sobre %s.
-            - Antes da pergunta, reaja à última mensagem do usuário em no máximo 1 frase curta.
+            - Inclua exemplos de possíveis respostas àquela pergunta.
+            - %s
             - NÃO faça outras perguntas, NÃO sugira profissões e NÃO dê conselhos ou análises ainda.
             - Responda apenas com o texto da mensagem, sem markdown, sem JSON e sem aspas.
 
             Conversa até agora:
             %s
-            """.formatted(indice + 1, PERGUNTAS_IKIGAI.size(), PERGUNTAS_IKIGAI.get(indice), historico);
+            """.formatted(indice + 1, PERGUNTAS_IKIGAI.size(), PERGUNTAS_IKIGAI.get(indice), regraReacao, historico);
     }
 
     private String montarHistorico(List<Mensagem> mensagens){
