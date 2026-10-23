@@ -3,7 +3,6 @@ package wisepath.code.controller;
 import java.net.URI;
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.validation.Valid;
 import wisepath.code.dto.EditarMensagemDTO;
@@ -62,19 +60,23 @@ public class MensagemController {
     }
 
     @PutMapping("/{idMensagem}")
-    public ResponseEntity<MensagemResponseDTO> editarMensagem(
+    public ResponseEntity<List<MensagemResponseDTO>> editarMensagem(
             @AuthenticationPrincipal Usuario usuarioLogado,
             @PathVariable Long idChat,
             @PathVariable Long idMensagem,
             @RequestBody @Valid EditarMensagemDTO dto) {
 
         chatService.buscarChatDoUsuario(idChat, usuarioLogado.getIdUsuario());
-        garantirMensagemPertenceAoChat(idChat, idMensagem);
-        return ResponseEntity.ok(MensagemResponseDTO.fromEntity(
-                mensagemService.editarMensagem(idMensagem, dto.conteudo())
-        ));
+        mensagemService.buscarMensagemDoUsuario(idChat, idMensagem);
+
+        List<Mensagem> historico = mensagemService.historicoComEdicao(idChat, idMensagem, dto.conteudo());
+        String textoResposta = geminiService.responderMensagem(historico);
+
+        List<Mensagem> salvas = mensagemService.editarMensagem(idChat, idMensagem, dto.conteudo(), textoResposta);
+        return ResponseEntity.ok(salvas.stream().map(MensagemResponseDTO::fromEntity).toList());
     }
 
+    // Exclui a mensagem selecionada e todas as posteriores.
     @DeleteMapping("/{idMensagem}")
     public ResponseEntity<Void> deletarMensagem(
             @AuthenticationPrincipal Usuario usuarioLogado,
@@ -82,18 +84,8 @@ public class MensagemController {
             @PathVariable Long idMensagem) {
 
         chatService.buscarChatDoUsuario(idChat, usuarioLogado.getIdUsuario());
-        garantirMensagemPertenceAoChat(idChat, idMensagem);
-        mensagemService.deletarMensagem(idMensagem);
+        mensagemService.deletarMensagem(idChat, idMensagem);
         return ResponseEntity.noContent().build();
-    }
-
-    private void garantirMensagemPertenceAoChat(
-      Long idChat, Long idMensagem) {
-
-      Mensagem mensagem = mensagemService.buscarPorId(idMensagem);
-      if (!mensagem.getChat().getIdChat().equals(idChat)) {
-         throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Mensagem não encontrada neste chat.");
-      }
     }
 
 }

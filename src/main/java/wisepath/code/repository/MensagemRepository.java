@@ -8,6 +8,11 @@ import wisepath.code.entity.Mensagem;
 
 public interface MensagemRepository extends JpaRepository<Mensagem, Long> {
     List<Mensagem> findByChatIdChatOrderByIdMensagemAsc(Long idChat);
-    // apaga tudo que veio depois da mensagem editada (mesma conversa)
+
+    //Edição
     void deleteByChatIdChatAndIdMensagemGreaterThan(Long idChat, Long idMensagem);
+
+    //Exclusão
+    void deleteByChatIdChatAndIdMensagemGreaterThanEqual(Long idChat, Long idMensagem);
+
 }

@@ -29,7 +29,6 @@ public class GeminiService {
 
     private static final int MAX_TENTATIVAS = 3;
 
-    // Roteiro fixo do Ikigai: o backend controla em qual pergunta a conversa está.
     private static final List<String> PERGUNTAS_IKIGAI = List.of(
         "o que a pessoa ama fazer (hobbies, atividades em que perde a noção do tempo) ",
         "no que a pessoa é naturalmente boa (habilidades pelas quais costuma ser elogiada) ",
@@ -37,7 +36,6 @@ public class GeminiService {
         "pelo que a pessoa poderia ser paga (habilidades com valor de mercado)"
     );
 
-    // Resposta padrão enviada logo após a primeira mensagem do usuário (não passa pela IA).
     private static final String MENSAGEM_INICIAL = """
         Olá! Que bom ter você aqui. Eu sou o orientador do WisePath e vou te ajudar a descobrir carreiras que combinam com você usando o **Ikigai**, um conceito japonês que busca o ponto de encontro entre quatro dimensões da vida.
 
@@ -118,7 +116,12 @@ public class GeminiService {
 
     //fala natural do chatbot: uma pergunta do roteiro Ikigai por vez
     public String responderMensagem(Chat chat){
-        long respostasDoUsuario = chat.getMensagens().stream()
+        return responderMensagem(chat.getMensagens());
+    }
+
+    //versão que recebe o histórico direto (usada na edição de mensagens)
+    public String responderMensagem(List<Mensagem> mensagens){
+        long respostasDoUsuario = mensagens.stream()
             .filter(m -> m.getAutor() == Mensagem.AutorMensagem.USUARIO)
             .count();
 
@@ -130,7 +133,7 @@ public class GeminiService {
 
         boolean primeiraMensagem = respostasDoUsuario <= 1;
 
-        String historico = montarHistorico(chat.getMensagens());
+        String historico = montarHistorico(mensagens);
         String prompt = montarPromptConversa(historico, Math.max(indice, 0), primeiraMensagem);
 
         Map<String, Object> body = Map.of(
