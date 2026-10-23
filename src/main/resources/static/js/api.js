@@ -94,6 +94,17 @@ const Api = {
       });
     }, 
 
+    editarMensagem(idChat, idMensagem, conteudo){
+      return this._request(`/chats/${idChat}/mensagens/${idMensagem}`, {
+        method:"PUT",
+        body: JSON.stringify({conteudo}),
+      });
+    },
+
+    excluirMensagem(idChat, idMensagem){
+      return this._request(`/chats/${idChat}/mensagens/${idMensagem}`, { method:"DELETE" });
+    },
+
     listarResultados(idChat){
       return this._request(`/chats/${idChat}/resultado`);
     }, 

@@ -1,5 +1,4 @@
 // ─── Tela: Chat ─────────────────────────────────────────────────────────────
-// 1 mensagem de abertura + 4 respostas do roteiro Ikigai 
 const TOTAL_RESPOSTAS = 5;
 
 Screens.chat = {
@@ -14,6 +13,7 @@ Screens.chat = {
     loadingChat: false,
     error: null,
     editingChatId: null,
+    editingMessageId: null, // id da mensagem do usuário em edição inline
     searchOpen: false,
     searchTerm: "",
     searchResults: null, // null = ainda sem resultado do back-end para o termo atual
@@ -61,6 +61,7 @@ Screens.chat = {
     const local = this._local;
     local.chatId = idChat;
     local.error = null;
+    local.editingMessageId = null;
     local.loadingChat = true;
     if (this.isMobile()) local.sidebarOpen = false;
     this.render(container);
@@ -101,6 +102,7 @@ Screens.chat = {
     local.messages = [];
     local.stage = 0;
     local.error = null;
+    local.editingMessageId = null;
     if (this.isMobile()) local.sidebarOpen = false;
     this.render(container);
   },
@@ -407,7 +409,7 @@ Screens.chat = {
     this.wire(container);
   },
 
-  renderMessages(container) {
+  renderMessages(container, { scroll = true } = {}) {
     const local = this._local;
     const wrap = container.querySelector("#chat-messages");
     if (!wrap) return;
@@ -446,7 +448,9 @@ Screens.chat = {
                   <span class="map-cta-arrow">→</span>
                 </button>
               </div>`
-            : `<div class="msg-bubble ${msg.role === "user" ? "user" : "bot"}" style="${msg.pending ? "opacity:0.6;" : ""}">${renderMsg(msg.content)}</div>`
+            : msg.role === "user"
+              ? this.mensagemUsuarioHTML(msg)
+              : `<div class="msg-bubble bot">${renderMsg(msg.content)}</div>`
         }
       </div>
     `,
@@ -473,8 +477,197 @@ Screens.chat = {
       }),
     );
 
+    this.wireMensagens(container, wrap);
+
+    if (local.editingMessageId !== null) {
+      const campo = wrap.querySelector(".msg-edit-input");
+      if (campo) {
+        this.ajustarAltura(campo);
+        campo.focus();
+        campo.setSelectionRange(campo.value.length, campo.value.length);
+      }
+    }
+
     const anchor = wrap.querySelector("#chat-bottom-anchor");
-    if (anchor) anchor.scrollIntoView({ behavior: "smooth" });
+    if (scroll && anchor) anchor.scrollIntoView({ behavior: "smooth" });
+  },
+
+  // ─── Editar / excluir mensagens ──────────────────────────────────────────
+  podeAlterarMensagem(msg) {
+    return msg.role === "user" && typeof msg.id === "number" && !msg.pending;
+  },
+
+  mensagemUsuarioHTML(msg) {
+    const local = this._local;
+
+    if (msg.id === local.editingMessageId) {
+      return `
+        <div class="msg-edit" data-msg-id="${msg.id}">
+          <textarea class="msg-edit-input" rows="1" maxlength="5000"
+            aria-label="Editar mensagem">${escapeHtml(msg.content)}</textarea>
+          <div class="msg-edit-actions">
+            <button type="button" class="msg-edit-btn" data-edit-action="cancel">Cancelar</button>
+            <button type="button" class="msg-edit-btn primary" data-edit-action="save">Salvar</button>
+          </div>
+        </div>`;
+    }
+
+    const acoes =
+      this.podeAlterarMensagem(msg) && !local.typing
+        ? `<div class="msg-actions">
+             <button type="button" class="msg-action-btn" data-msg-action="edit" data-msg-id="${msg.id}"
+               title="Editar" aria-label="Editar mensagem">${Icons.pencil}</button>
+             <button type="button" class="msg-action-btn danger" data-msg-action="delete" data-msg-id="${msg.id}"
+               title="Excluir" aria-label="Excluir mensagem">${Icons.trash}</button>
+           </div>`
+        : "";
+
+    return `
+      <div class="msg-user-group">
+        ${acoes}
+        <div class="msg-bubble user" style="${msg.pending ? "opacity:0.6;" : ""}">${renderMsg(msg.content)}</div>
+      </div>`;
+  },
+
+  ajustarAltura(campo) {
+    campo.style.height = "auto";
+    campo.style.height = campo.scrollHeight + "px";
+  },
+
+  wireMensagens(container, wrap) {
+    wrap.querySelectorAll(".msg-action-btn").forEach((btn) =>
+      btn.addEventListener("click", () => {
+        const id = Number(btn.getAttribute("data-msg-id"));
+        if (btn.getAttribute("data-msg-action") === "edit") this.iniciarEdicaoMensagem(container, id);
+        else this.excluirMensagem(container, id);
+      }),
+    );
+
+    const edicao = wrap.querySelector(".msg-edit");
+    if (!edicao) return;
+
+    const id = Number(edicao.getAttribute("data-msg-id"));
+    const campo = edicao.querySelector(".msg-edit-input");
+
+    campo.addEventListener("input", () => this.ajustarAltura(campo));
+    campo.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        this.salvarEdicaoMensagem(container, id, campo.value);
+      } else if (e.key === "Escape") {
+        this.cancelarEdicaoMensagem(container);
+      }
+    });
+    edicao
+      .querySelector('[data-edit-action="cancel"]')
+      .addEventListener("click", () => this.cancelarEdicaoMensagem(container));
+    edicao
+      .querySelector('[data-edit-action="save"]')
+      .addEventListener("click", () => this.salvarEdicaoMensagem(container, id, campo.value));
+  },
+
+  iniciarEdicaoMensagem(container, id) {
+    const local = this._local;
+    if (local.typing) return;
+    local.editingMessageId = id;
+    this.renderMessages(container, { scroll: false });
+  },
+
+  cancelarEdicaoMensagem(container) {
+    this._local.editingMessageId = null;
+    this.renderMessages(container, { scroll: false });
+  },
+
+  recalcularStage() {
+    const local = this._local;
+    const respostas = local.messages.filter((m) => m.role === "user").length;
+    local.stage = Math.min(respostas, TOTAL_RESPOSTAS);
+  },
+
+  descartarResultadoLocal() {
+    const idChat = this._local.chatId;
+    MapStore.maps = MapStore.maps.filter((m) => m.idChat !== idChat);
+  },
+
+  async salvarEdicaoMensagem(container, id, novoTexto) {
+    const local = this._local;
+    if (local.editingMessageId !== id || local.typing) return; // evita salvar 2x
+
+    const idx = local.messages.findIndex((m) => m.id === id);
+    if (idx === -1) return;
+
+    const texto = novoTexto.trim();
+    if (!texto) return; // não permite mensagem vazia: continua em edição
+    if (texto === local.messages[idx].content) {
+      this.cancelarEdicaoMensagem(container);
+      return;
+    }
+
+    const antes = local.messages; 
+    local.editingMessageId = null;
+    local.error = null;
+    local.typing = true;
+    local.messages = [
+      ...antes.slice(0, idx),
+      { ...antes[idx], content: texto, pending: true },
+    ];
+    this.renderMessages(container);
+    this.atualizarBotaoEnvio(container);
+
+    try {
+      const [mensagemUsuario, mensagemBot] = await Api.editarMensagem(local.chatId, id, texto);
+
+      local.messages = [
+        ...antes.slice(0, idx),
+        { id: mensagemUsuario.idMensagem, role: "user", content: mensagemUsuario.conteudo },
+        { id: mensagemBot.idMensagem, role: "assistant", content: mensagemBot.conteudo },
+      ];
+      this.descartarResultadoLocal();
+      this.recalcularStage();
+    } catch (err) {
+      local.messages = antes;
+      local.typing = false;
+      local.error = err.message;
+      this.render(container);
+      return;
+    }
+
+    local.typing = false;
+    this.renderMessages(container);
+    this.atualizarBotaoEnvio(container);
+    
+    if (local.stage >= TOTAL_RESPOSTAS) {
+      this.gerarResultado(container);
+    }
+  },
+
+  async excluirMensagem(container, id) {
+    const local = this._local;
+    if (local.typing) return;
+
+    const idx = local.messages.findIndex((m) => m.id === id);
+    if (idx === -1) return;
+
+    const posteriores = local.messages.length - idx - 1;
+    const aviso = posteriores > 0
+      ? "Excluir esta mensagem? Ela e todas as mensagens seguintes serão removidas. Essa ação não pode ser desfeita."
+      : "Excluir esta mensagem? Essa ação não pode ser desfeita.";
+    if (!confirm(aviso)) return;
+
+    try {
+      await Api.excluirMensagem(local.chatId, id);
+    } catch (err) {
+      local.error = err.message;
+      this.render(container);
+      return;
+    }
+
+    local.messages = local.messages.slice(0, idx);
+    local.editingMessageId = null;
+    local.error = null;
+    this.descartarResultadoLocal();
+    this.recalcularStage();
+    this.render(container);
   },
 
   atualizarBotaoEnvio(container) {

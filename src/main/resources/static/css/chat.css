@@ -129,6 +129,47 @@
 .msg-bubble.bot { background: white; color: #0d1b4b; border-radius: 20px 20px 20px 4px; }
 .msg-bubble.user { background: #0d1b4b; color: white; border-radius: 20px 20px 4px 20px; }
 
+/* Mensagem do usuário: ícones de editar/excluir aparecem no hover (ou foco de teclado) */
+.msg-user-group { display: flex; align-items: center; gap: 6px; max-width: 100%; min-width: 0; }
+.msg-user-group .msg-bubble { max-width: none; min-width: 0; overflow-wrap: anywhere; }
+.msg-actions {
+  display: flex; align-items: center; gap: 2px; flex-shrink: 0;
+  opacity: 0; pointer-events: none; transition: opacity 0.15s;
+}
+.msg-user-group:hover .msg-actions,
+.msg-user-group:focus-within .msg-actions { opacity: 1; pointer-events: auto; }
+.msg-action-btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 28px; height: 28px; border: none; background: none; border-radius: 8px;
+  color: #6b7280; cursor: pointer; transition: background 0.15s, color 0.15s;
+}
+.msg-action-btn:hover { background: rgba(13, 27, 75, 0.08); color: #0d1b4b; }
+.msg-action-btn.danger:hover { background: #fee2e2; color: #dc2626; }
+/* Celular/tablet não têm hover: ícones sempre visíveis */
+@media (hover: none) { .msg-actions { opacity: 1; pointer-events: auto; } }
+
+/* Edição inline da mensagem */
+.msg-edit {
+  width: min(100%, 460px); box-sizing: border-box; background: white;
+  border: 2px solid #0d1b4b; border-radius: 16px; padding: 10px 12px;
+  box-shadow: 0 3px 10px rgba(13, 27, 75, 0.07);
+}
+.msg-edit-input {
+  width: 100%; box-sizing: border-box; border: none; outline: none; resize: none;
+  font: inherit; font-size: 14px; line-height: 1.6; color: #0d1b4b;
+  background: transparent; max-height: 220px;
+}
+.msg-edit-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 8px; }
+.msg-edit-btn {
+  font: inherit; font-size: 13px; font-weight: 600; padding: 6px 14px;
+  border-radius: 999px; cursor: pointer; border: 1px solid #d1d5db;
+  background: white; color: #0d1b4b;
+}
+.msg-edit-btn:hover { background: #f3f4f6; }
+.msg-edit-btn.primary { background: #0d1b4b; border-color: #0d1b4b; color: white; }
+.msg-edit-btn.primary:hover { background: #16296b; }
+.msg-edit-btn:disabled { opacity: 0.5; cursor: default; }
+
 .typing-dots { display: flex; gap: 5px; align-items: center; padding: 4px 0; }
 .dot {
   width: 8px; height: 8px; border-radius: 50%; background: #0d1b4b;
