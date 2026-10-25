@@ -20,6 +20,7 @@ import wisepath.code.dto.NovaMensagemDTO;
 import wisepath.code.entity.Chat;
 import wisepath.code.entity.Mensagem;
 import wisepath.code.entity.Usuario;
+import wisepath.code.service.ChatLockService;
 import wisepath.code.service.ChatService;
 import wisepath.code.service.GeminiService;
 import wisepath.code.service.MensagemService;
@@ -31,11 +32,14 @@ public class MensagemController {
     private final MensagemService mensagemService;
     private final ChatService chatService;
     private final GeminiService geminiService;
+    private final ChatLockService chatLockService;
 
-    public MensagemController(MensagemService mensagemService, ChatService chatService, GeminiService geminiService) {
+    public MensagemController(MensagemService mensagemService, ChatService chatService,
+            GeminiService geminiService, ChatLockService chatLockService) {
         this.mensagemService = mensagemService;
         this.chatService = chatService;
         this.geminiService = geminiService;
+        this.chatLockService = chatLockService;
     }
 
     @PostMapping
@@ -46,19 +50,22 @@ public class MensagemController {
 
         Chat chat = chatService.buscarChatDoUsuario(idChat, usuarioLogado.getIdUsuario());
 
-        Mensagem mensagemUsuario = mensagemService.enviarMensagem(chat, dto.conteudo(), Mensagem.AutorMensagem.USUARIO);
+        return chatLockService.executar(idChat, () -> {
+            mensagemService.garantirHistoricoAtualizado(idChat, dto.ultimaMensagemId());
 
-        String textoResposta = geminiService.responderMensagem(chat);
+            // A IA responde primeiro: se ela falhar, nada foi gravado no banco.
+            List<Mensagem> historico = mensagemService.historicoComNovaMensagem(idChat, dto.conteudo());
+            String textoResposta = geminiService.responderMensagem(historico);
 
-        Mensagem mensagemBot = mensagemService.enviarMensagem(chat, textoResposta, Mensagem.AutorMensagem.CHATBOT);
+            List<Mensagem> salvas = mensagemService.registrarConversa(chat, dto.conteudo(), textoResposta);
+            Mensagem mensagemBot = salvas.get(1);
 
-        URI uri = URI.create("/chats/" + idChat + "/mensagens/" + mensagemBot.getIdMensagem());
-        return ResponseEntity.created(uri).body(List.of(
-            MensagemResponseDTO.fromEntity(mensagemUsuario),
-            MensagemResponseDTO.fromEntity(mensagemBot)
-        ));
+            URI uri = URI.create("/chats/" + idChat + "/mensagens/" + mensagemBot.getIdMensagem());
+            return ResponseEntity.created(uri).body(salvas.stream().map(MensagemResponseDTO::fromEntity).toList());
+        });
     }
 
+    // Edita uma mensagem do usuário, apaga tudo que veio depois dela e devolve
     @PutMapping("/{idMensagem}")
     public ResponseEntity<List<MensagemResponseDTO>> editarMensagem(
             @AuthenticationPrincipal Usuario usuarioLogado,
@@ -67,13 +74,17 @@ public class MensagemController {
             @RequestBody @Valid EditarMensagemDTO dto) {
 
         chatService.buscarChatDoUsuario(idChat, usuarioLogado.getIdUsuario());
-        mensagemService.buscarMensagemDoUsuario(idChat, idMensagem);
 
-        List<Mensagem> historico = mensagemService.historicoComEdicao(idChat, idMensagem, dto.conteudo());
-        String textoResposta = geminiService.responderMensagem(historico);
+        return chatLockService.executar(idChat, () -> {
+            mensagemService.buscarMensagemDoUsuario(idChat, idMensagem);
 
-        List<Mensagem> salvas = mensagemService.editarMensagem(idChat, idMensagem, dto.conteudo(), textoResposta);
-        return ResponseEntity.ok(salvas.stream().map(MensagemResponseDTO::fromEntity).toList());
+            // A IA responde primeiro: se ela falhar, nada foi alterado no banco.
+            List<Mensagem> historico = mensagemService.historicoComEdicao(idChat, idMensagem, dto.conteudo());
+            String textoResposta = geminiService.responderMensagem(historico);
+
+            List<Mensagem> salvas = mensagemService.editarMensagem(idChat, idMensagem, dto.conteudo(), textoResposta);
+            return ResponseEntity.ok(salvas.stream().map(MensagemResponseDTO::fromEntity).toList());
+        });
     }
 
     // Exclui a mensagem selecionada e todas as posteriores.
@@ -84,7 +95,7 @@ public class MensagemController {
             @PathVariable Long idMensagem) {
 
         chatService.buscarChatDoUsuario(idChat, usuarioLogado.getIdUsuario());
-        mensagemService.deletarMensagem(idChat, idMensagem);
+        chatLockService.executarSemRetorno(idChat, () -> mensagemService.deletarMensagem(idChat, idMensagem));
         return ResponseEntity.noContent().build();
     }
 

@@ -38,7 +38,8 @@ public class MensagemService{
                 .orElseThrow(() -> new IllegalArgumentException("Mensagem não encontrada."));
     }
 
-    // Validação de autor
+    // Validação de autor: só mensagens do USUARIO (e que pertençam ao chat informado)
+    // podem ser editadas ou excluídas. As do chatbot nunca.
     @Transactional(readOnly = true)
     public Mensagem buscarMensagemDoUsuario(Long idChat, Long idMensagem){
         Mensagem mensagem = buscarPorId(idMensagem);
@@ -53,6 +54,45 @@ public class MensagemService{
         return mensagem;
     }
 
+    // Histórico "como ficaria" com a nova mensagem do usuário no fim
+    @Transactional(readOnly = true)
+    public List<Mensagem> historicoComNovaMensagem(Long idChat, String conteudo){
+        List<Mensagem> historico = new ArrayList<>(mensagemRepository.findByChatIdChatOrderByIdMensagemAsc(idChat));
+
+        Mensagem nova = new Mensagem();
+        nova.setAutor(Mensagem.AutorMensagem.USUARIO);
+        nova.setConteudo(conteudo);
+        historico.add(nova);
+        return historico;
+    }
+
+    @Transactional
+    public List<Mensagem> registrarConversa(Chat chat, String conteudoUsuario, String respostaChatbot){
+        Mensagem doUsuario = enviarMensagem(chat, conteudoUsuario, Mensagem.AutorMensagem.USUARIO);
+        Mensagem doChatbot = enviarMensagem(chat, respostaChatbot, Mensagem.AutorMensagem.CHATBOT);
+        return List.of(doUsuario, doChatbot);
+    }
+
+    // Id da última mensagem do chat (0 se estiver vazio)
+    @Transactional(readOnly = true)
+    public long idDaUltimaMensagem(Long idChat){
+        return mensagemRepository.findFirstByChatIdChatOrderByIdMensagemDesc(idChat)
+                .map(Mensagem::getIdMensagem)
+                .orElse(0L);
+    }
+
+    // Detecta tela desatualizada 
+    @Transactional(readOnly = true)
+    public void garantirHistoricoAtualizado(Long idChat, Long ultimaMensagemConhecida){
+        if (ultimaMensagemConhecida == null) return; // cliente não informou: sem verificação
+
+        if (idDaUltimaMensagem(idChat) != ultimaMensagemConhecida.longValue()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT,
+                    "Esta conversa foi atualizada em outra janela. Carreguei o histórico mais recente; envie sua mensagem novamente.");
+        }
+    }
+
+    // Histórico "como ficaria" após a edição
     @Transactional(readOnly = true)
     public List<Mensagem> historicoComEdicao(Long idChat, Long idMensagem, String novoConteudo){
         List<Mensagem> historico = new ArrayList<>();
@@ -72,6 +112,7 @@ public class MensagemService{
         return historico;
     }
 
+    // Edição: atualiza a mensagem, remove as posteriores 
     @Transactional
     public List<Mensagem> editarMensagem(Long idChat, Long idMensagem, String novoConteudo, String respostaChatbot){
         if (novoConteudo == null || novoConteudo.isBlank()) {
@@ -95,6 +136,7 @@ public class MensagemService{
         return List.of(atualizada, resposta);
     }
 
+    // Exclusão: remove a mensagem selecionada e TODAS as posteriores do chat.
     @Transactional
     public void deletarMensagem(Long idChat, Long idMensagem){
         buscarMensagemDoUsuario(idChat, idMensagem);
@@ -102,7 +144,7 @@ public class MensagemService{
         mensagemRepository.deleteByChatIdChatAndIdMensagemGreaterThanEqual(idChat, idMensagem);
         removerResultados(idChat);
     }
-    
+
     private void removerResultados(Long idChat){
         resultadoRepository.deleteAll(resultadoRepository.findByChatIdChatOrderByIdResultadoDesc(idChat));
     }

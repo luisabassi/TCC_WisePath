@@ -18,6 +18,7 @@ import wisepath.code.dto.ResultadoDTO;
 import wisepath.code.entity.Chat;
 import wisepath.code.entity.Resultado;
 import wisepath.code.entity.Usuario;
+import wisepath.code.service.ChatLockService;
 import wisepath.code.service.ChatService;
 import wisepath.code.service.GeminiService;
 import wisepath.code.service.ResultadoService;
@@ -29,14 +30,17 @@ public class ResultadoController {
     private final ChatService chatService;
     private final GeminiService geminiService;
     private final ResultadoService resultadoService;
+    private final ChatLockService chatLockService;
 
     public ResultadoController(ChatService chatService, 
         GeminiService geminiService, 
-        ResultadoService resultadoService) {
+        ResultadoService resultadoService,
+        ChatLockService chatLockService) {
 
         this.chatService = chatService;
         this.geminiService = geminiService;
         this.resultadoService = resultadoService;
+        this.chatLockService = chatLockService;
     }
 
     @PostMapping 
@@ -44,16 +48,19 @@ public class ResultadoController {
         @PathVariable Long idChat){
         Chat chat = chatService.buscarChatDoUsuario(idChat, usuarioLogado.getIdUsuario());
 
-        AnaliseIADTO analise = geminiService.analisarChat(chat);
+        // na mesma fila das mensagens do chat: a análise lê o histórico inteiro
+        return chatLockService.executar(idChat, () -> {
+            AnaliseIADTO analise = geminiService.analisarChat(chat);
 
-        Resultado resultado = resultadoService.gerarResultado(
-                chat,
-                analise.resumo(),
-                analise.jsonMapaMental(),
-                analise.profissoes()
-        );
- 
-        return ResponseEntity.ok(ResultadoDTO.fromEntity(resultado));
+            Resultado resultado = resultadoService.gerarResultado(
+                    chat,
+                    analise.resumo(),
+                    analise.jsonMapaMental(),
+                    analise.profissoes()
+            );
+
+            return ResponseEntity.ok(ResultadoDTO.fromEntity(resultado));
+        });
     }
 
     @GetMapping("/{idResultado}")
