@@ -1,20 +1,20 @@
-// ─── Inicialização da aplicação ────────────────────────────────────────────
-
-document.addEventListener("DOMContentLoaded", () => {
-  // Se já existe uma sessão válida salva (login anterior), entra direto
-  // na tela inicial em vez de pedir cadastro/login de novo.
-  const sessao = Auth.getUsuario();
-  if (sessao && sessao.token) {
-    AppState.profile.name = sessao.nome;
-    AppState.profile.email = sessao.email;
-    AppState.view = "welcome";
+document.addEventListener("DOMContentLoaded", async () => {
+  try {
+    await Modelos.carregar();
+  } catch (erro) {
+    obterRaiz().textContent = erro.message;
+    return;
   }
 
+  const sessao = Autenticacao.obterUsuario();
+  if (sessao && sessao.token) {
+    EstadoApp.perfil.nome = sessao.nome;
+    EstadoApp.perfil.email = sessao.email;
+  }
 
-  //A tela inicial vem da URL
-  //Caminho desconhecido ou "/" cai em /inicio (logado) ou /login(deslogado)
-  const view = resolveView(viewFromPath(window.location.pathname));
-  AppState.view = view;
-  window.history.replaceState({view}, "", pathFor(view));
-  renderCurrentView();
+  // A tela inicial vem da URL; caminho desconhecido cai em /inicio (logado) ou /login
+  const tela = resolverTela(telaDoCaminho(window.location.pathname));
+  EstadoApp.tela = tela;
+  window.history.replaceState({ tela }, "", caminhoDaTela(tela));
+  renderizarTelaAtual();
 });
