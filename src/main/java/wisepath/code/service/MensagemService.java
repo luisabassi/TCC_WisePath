@@ -38,8 +38,7 @@ public class MensagemService{
                 .orElseThrow(() -> new IllegalArgumentException("Mensagem não encontrada."));
     }
 
-    // Validação de autor: só mensagens do USUARIO (e que pertençam ao chat informado)
-    // podem ser editadas ou excluídas. As do chatbot nunca.
+    // Só mensagens do USUARIO, do chat informado, podem ser editadas ou excluídas
     @Transactional(readOnly = true)
     public Mensagem buscarMensagemDoUsuario(Long idChat, Long idMensagem){
         Mensagem mensagem = buscarPorId(idMensagem);
@@ -54,7 +53,7 @@ public class MensagemService{
         return mensagem;
     }
 
-    // Histórico "como ficaria" com a nova mensagem do usuário no fim
+    // Histórico enviado à IA antes de a nova mensagem ser gravada
     @Transactional(readOnly = true)
     public List<Mensagem> historicoComNovaMensagem(Long idChat, String conteudo){
         List<Mensagem> historico = new ArrayList<>(mensagemRepository.findByChatIdChatOrderByIdMensagemAsc(idChat));
@@ -73,7 +72,6 @@ public class MensagemService{
         return List.of(doUsuario, doChatbot);
     }
 
-    // Id da última mensagem do chat (0 se estiver vazio)
     @Transactional(readOnly = true)
     public long idDaUltimaMensagem(Long idChat){
         return mensagemRepository.findFirstByChatIdChatOrderByIdMensagemDesc(idChat)
@@ -81,10 +79,11 @@ public class MensagemService{
                 .orElse(0L);
     }
 
-    // Detecta tela desatualizada 
+    // Recusa (409) quem está com o histórico desatualizado por alteração em outra janela;
+    // sem verificação quando o cliente não informa o último id
     @Transactional(readOnly = true)
     public void garantirHistoricoAtualizado(Long idChat, Long ultimaMensagemConhecida){
-        if (ultimaMensagemConhecida == null) return; // cliente não informou: sem verificação
+        if (ultimaMensagemConhecida == null) return;
 
         if (idDaUltimaMensagem(idChat) != ultimaMensagemConhecida.longValue()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT,
@@ -92,7 +91,7 @@ public class MensagemService{
         }
     }
 
-    // Histórico "como ficaria" após a edição
+    // Histórico enviado à IA com a edição aplicada e sem as mensagens posteriores
     @Transactional(readOnly = true)
     public List<Mensagem> historicoComEdicao(Long idChat, Long idMensagem, String novoConteudo){
         List<Mensagem> historico = new ArrayList<>();
@@ -112,7 +111,7 @@ public class MensagemService{
         return historico;
     }
 
-    // Edição: atualiza a mensagem, remove as posteriores 
+    // Edição: atualiza a mensagem, apaga as posteriores e o resultado já gerado
     @Transactional
     public List<Mensagem> editarMensagem(Long idChat, Long idMensagem, String novoConteudo, String respostaChatbot){
         if (novoConteudo == null || novoConteudo.isBlank()) {
@@ -136,7 +135,7 @@ public class MensagemService{
         return List.of(atualizada, resposta);
     }
 
-    // Exclusão: remove a mensagem selecionada e TODAS as posteriores do chat.
+    // Exclusão: remove a mensagem escolhida, as posteriores e o resultado já gerado
     @Transactional
     public void deletarMensagem(Long idChat, Long idMensagem){
         buscarMensagemDoUsuario(idChat, idMensagem);

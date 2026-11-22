@@ -21,11 +21,11 @@ import wisepath.code.entity.Mensagem;
 
 @Service
 public class GeminiService {
-    private final RestClient restClient;
-    private final ObjectMapper objectMapper = new ObjectMapper();
-    private final String apiKey;
+    private final RestClient clienteRest;
+    private final ObjectMapper mapeadorJson = new ObjectMapper();
+    private final String chaveApi;
 
-    private static final Logger log = LoggerFactory.getLogger(GeminiService.class);
+    private static final Logger registro = LoggerFactory.getLogger(GeminiService.class);
 
     private static final int MAX_TENTATIVAS = 3;
 
@@ -40,39 +40,39 @@ public class GeminiService {
         Olá! Que bom ter você aqui. Eu sou o orientador do WisePath e vou te ajudar a descobrir carreiras que combinam com você usando o **Ikigai**, um conceito japonês que busca o ponto de encontro entre quatro dimensões da vida.
 
         **Como vai funcionar:**
-        - Vou te fazer 4 perguntas, uma de cada vez: o que você ama fazer, no que você é bom, o que o mundo precisa e pelo que você poderia ser pago.
+        - Vou te fazer 4 perguntas, uma de cada vez: aquilo que você ama, aquilo que você é bom, o que o mundo precisa e pelo que você pode ser remunerado.
         - Responda com suas próprias palavras. Não existe resposta certa ou errada, e quanto mais sincero você for, melhor será o resultado.
         - Ao final, vou analisar tudo o que você contou e sugerir 3 profissões com média salarial, empregabilidade, tendências e cursos relacionados, além de montar o seu mapa mental do Ikigai.
 
         Vamos lá!""";
 
-    public GeminiService(@Value("${gemini.api.url}") String apiUrl,
-            @Value("${gemini.api.key}") String apiKey) {
-        this.restClient = RestClient.builder().baseUrl(apiUrl).build();
-        this.apiKey = apiKey;
+    public GeminiService(@Value("${gemini.api.url}") String urlApi,
+            @Value("${gemini.api.key}") String chaveApi) {
+        this.clienteRest = RestClient.builder().baseUrl(urlApi).build();
+        this.chaveApi = chaveApi;
     }
 
-    public AnaliseIADTO analisarChat(Chat chat){
+    public AnaliseIADTO analisarChat(Chat chat) {
         String historico = montarHistorico(chat.getMensagens());
         String prompt = montarPrompt(historico);
 
-        Map<String,Object> profissao = Map.of(
+        Map<String, Object> esquemaProfissao = Map.of(
             "type", "OBJECT",
             "properties", Map.of(
                 "nome", Map.of("type", "STRING"),
                 "descricao", Map.of("type", "STRING"),
                 "mediaSalarial", Map.of("type", "STRING"),
                 "empregabilidade", Map.of("type", "STRING"),
-                "tendenciasFuturas", Map.of("type", "STRING"), 
+                "tendenciasFuturas", Map.of("type", "STRING"),
                 "comoComecar", Map.of("type", "STRING"),
                 "cursosRelacionados", Map.of("type", "STRING")),
             "required", List.of("nome", "descricao", "mediaSalarial",
-                "empregabilidade", "tendenciasFuturas", 
-                "comoComecar", "cursosRelacionados") 
+                "empregabilidade", "tendenciasFuturas",
+                "comoComecar", "cursosRelacionados")
         );
 
-        //Resposta que API do Gemini deve retornar 
-        Map<String,Object> schema = Map.of(
+        // Força o Gemini a devolver JSON no formato de AnaliseIADTO
+        Map<String, Object> esquema = Map.of(
             "type", "OBJECT",
             "properties", Map.of(
                 "resumo", Map.of("type", "STRING"),
@@ -81,46 +81,42 @@ public class GeminiService {
                     "type", "ARRAY",
                     "minItems", 3,
                     "maxItems", 3,
-                    "items", profissao
+                    "items", esquemaProfissao
                 )
             ),
             "required", List.of("resumo", "jsonMapaMental", "profissoes")
         );
 
-
-        //Montagem da requisição p/ Gemini para forçá-lo a devolver um
-        //JSON estruturado com campos específicos
-        Map<String,Object> body = Map.of(
+        Map<String, Object> corpo = Map.of(
             "contents", List.of(Map.of(
-                "parts",List.of(Map.of("text",prompt))
+                "parts", List.of(Map.of("text", prompt))
             )),
-            "generationConfig",Map.of(
+            "generationConfig", Map.of(
                 "responseMimeType", "application/json",
-                "responseSchema", schema,
-                "temperature", 0.4 //faz a resposta ser mais controlada
+                "responseSchema", esquema,
+                "temperature", 0.4 // respostas mais controladas
             )
         );
 
-        Map<?,?> resposta = chamarGemini(body);
+        Map<?, ?> resposta = chamarGemini(corpo);
 
         String textoJson = extrairTexto(resposta);
 
         try {
-            return objectMapper.readValue(textoJson, AnaliseIADTO.class);
+            return mapeadorJson.readValue(textoJson, AnaliseIADTO.class);
         } catch (JacksonException e) {
-            log.error("JSON inválido retornado pela IA: {}", textoJson, e);
+            registro.error("JSON inválido retornado pela IA: {}", textoJson, e);
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
                     "A IA retornou uma resposta em formato inválido. Tente novamente.", e);
         }
     }
 
-    //fala natural do chatbot: uma pergunta do roteiro Ikigai por vez
-    public String responderMensagem(Chat chat){
+    public String responderMensagem(Chat chat) {
         return responderMensagem(chat.getMensagens());
     }
 
-    //versão que recebe o histórico direto (usada na edição de mensagens)
-    public String responderMensagem(List<Mensagem> mensagens){
+    // Recebe o histórico direto porque, na edição, ele ainda não está gravado no banco
+    public String responderMensagem(List<Mensagem> mensagens) {
         long respostasDoUsuario = mensagens.stream()
             .filter(m -> m.getAutor() == Mensagem.AutorMensagem.USUARIO)
             .count();
@@ -136,37 +132,37 @@ public class GeminiService {
         String historico = montarHistorico(mensagens);
         String prompt = montarPromptConversa(historico, Math.max(indice, 0), primeiraMensagem);
 
-        Map<String, Object> body = Map.of(
+        Map<String, Object> corpo = Map.of(
             "contents", List.of(Map.of(
                 "parts", List.of(Map.of("text", prompt))
             ))
         );
 
-        Map<?,?> resposta = chamarGemini(body);
+        Map<?, ?> resposta = chamarGemini(corpo);
 
         String texto = extrairTexto(resposta).trim();
 
-        // Na primeira mensagem, a explicação fixa vem antes da primeira pergunta.
+        // Na primeira mensagem, a explicação fixa vem antes da primeira pergunta
         return primeiraMensagem ? MENSAGEM_INICIAL + "\n\n" + texto : texto;
     }
 
-    private Map<?,?> chamarGemini(Map<String, Object> body) {
+    // Repete a chamada em falhas 5xx ou de rede, com espera crescente (1s, 2s, 4s...)
+    private Map<?, ?> chamarGemini(Map<String, Object> corpo) {
         for (int tentativa = 1; tentativa <= MAX_TENTATIVAS; tentativa++) {
             try {
-                return restClient.post()
-                        .uri(uriBuilder -> uriBuilder.queryParam("key", apiKey).build())
-                        .body(body)
+                return clienteRest.post()
+                        .uri(construtorUri -> construtorUri.queryParam("key", chaveApi).build())
+                        .body(corpo)
                         .retrieve()
                         .body(Map.class);
             } catch (HttpServerErrorException | ResourceAccessException e) {
-                // 5xx 
                 if (tentativa == MAX_TENTATIVAS) {
                     throw new ResponseStatusException(
                             HttpStatus.SERVICE_UNAVAILABLE,
                             "A IA está com alta demanda no momento. Tente novamente em instantes.", e);
                 }
                 try {
-                    Thread.sleep(1000L * (1L << (tentativa - 1))); // 1s, 2s, 4s...
+                    Thread.sleep(1000L * (1L << (tentativa - 1)));
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
                     throw new ResponseStatusException(
@@ -177,7 +173,7 @@ public class GeminiService {
         throw new IllegalStateException("Inalcançável");
     }
 
-    public String montarPromptConversa(String historico, int indice, boolean primeiraMensagem){
+    public String montarPromptConversa(String historico, int indice, boolean primeiraMensagem) {
         String regraReacao = primeiraMensagem
             ? "Uma mensagem de boas-vindas já foi enviada ao usuário: NÃO cumprimente e NÃO reaja à mensagem dele, vá direto à pergunta."
             : "Antes da pergunta, reaja à última mensagem do usuário em no máximo 1 frase curta.";
@@ -198,13 +194,13 @@ public class GeminiService {
             """.formatted(indice + 1, PERGUNTAS_IKIGAI.size(), PERGUNTAS_IKIGAI.get(indice), regraReacao, historico);
     }
 
-    private String montarHistorico(List<Mensagem> mensagens){
-        StringBuilder sb = new StringBuilder();
-        for(Mensagem m: mensagens){
-            sb.append(m.getAutor()).append(": " ).append(m.getConteudo()).append("\n");
+    private String montarHistorico(List<Mensagem> mensagens) {
+        StringBuilder historico = new StringBuilder();
+        for (Mensagem mensagem : mensagens) {
+            historico.append(mensagem.getAutor()).append(": ").append(mensagem.getConteudo()).append("\n");
         }
 
-        return sb.toString();
+        return historico.toString();
     }
 
     private String montarPrompt(String historico) {
@@ -242,34 +238,29 @@ public class GeminiService {
     }
 
     @SuppressWarnings("unchecked")
-    private String extrairTexto(Map<?,?> resposta){
-        if(resposta == null){
-           throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, 
-            "A IA não retornou nenhuma resposta.");
+    private String extrairTexto(Map<?, ?> resposta) {
+        if (resposta == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
+                "A IA não retornou nenhuma resposta.");
         }
 
-        // A API retorna as respostas possíveis no campo "candidates".
-        var candidates = (List<Map<String, Object>>) resposta.get("candidates");
-        
-        if(candidates == null || candidates.isEmpty()){
-            log.warn("Gemini sem candidatos. Resposta bruta: {}", resposta);
+        var candidatos = (List<Map<String, Object>>) resposta.get("candidates");
+
+        if (candidatos == null || candidatos.isEmpty()) {
+            registro.warn("Gemini sem candidatos. Resposta bruta: {}", resposta);
             throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
                  "A IA não retornou uma resposta válida. Tente novamente.");
         }
 
-        // Usa o primeiro candidato e acessa o conteúdo gerado.
-        var content = (Map<String, Object>) candidates.get(0).get("content");
+        var conteudo = (Map<String, Object>) candidatos.get(0).get("content");
+        var partes = conteudo != null ? (List<Map<String, Object>>) conteudo.get("parts") : null;
 
-        // O texto da resposta fica nos blocos de conteúdo do campo "parts".
-        var parts = content != null ? (List<Map<String, Object>>) content.get("parts") : null;
-
-        
-        if(parts == null || parts.isEmpty() || parts.get(0).get("text") == null) {
-            log.warn("Gemini com formato inesperado. Resposta bruta: {}", resposta);
-            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, 
+        if (partes == null || partes.isEmpty() || partes.get(0).get("text") == null) {
+            registro.warn("Gemini com formato inesperado. Resposta bruta: {}", resposta);
+            throw new ResponseStatusException(HttpStatus.BAD_GATEWAY,
                 "A IA retornou uma resposta em formato inesperado. Tente novamente.");
         }
 
-       return (String) parts.get(0).get("text");
+        return (String) partes.get(0).get("text");
     }
 }

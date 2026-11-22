@@ -38,7 +38,7 @@ public class UsuarioService {
     }
 
     @Transactional
-    public Usuario cadastrar (Usuario usuario){
+    public Usuario cadastrar(Usuario usuario) {
         if (usuario.getNome() == null || usuario.getNome().isBlank()) {
             throw new IllegalArgumentException("O nome é obrigatório.");
         }
@@ -48,7 +48,7 @@ public class UsuarioService {
         if (usuario.getSenha() == null || usuario.getSenha().length() < TAMANHO_MINIMO_SENHA) {
             throw new IllegalArgumentException("A senha deve ter pelo menos " + TAMANHO_MINIMO_SENHA + " caracteres.");
         }
-        if(usuarioRepository.existsByEmail(usuario.getEmail())){
+        if (usuarioRepository.existsByEmail(usuario.getEmail())) {
             throw new IllegalArgumentException("Email já cadastrado");
         }
         usuario.setSenha(passwordEncoder.encode(usuario.getSenha()));
@@ -79,12 +79,12 @@ public class UsuarioService {
         Usuario usuario = usuarioRepository.findById(idUsuario)
             .orElseThrow(() -> new IllegalArgumentException("Usuário não encontrado."));
 
-        if(novoNome != null && !novoNome.isBlank()){
+        if (novoNome != null && !novoNome.isBlank()) {
             usuario.setNome(novoNome);
         }
 
         if (novoEmail != null && !novoEmail.isBlank() && !novoEmail.equalsIgnoreCase(usuario.getEmail())){
-            if(usuarioRepository.existsByEmail(novoEmail)){
+            if (usuarioRepository.existsByEmail(novoEmail)) {
                 throw new IllegalArgumentException("Email já cadastrado");
             }
 
@@ -96,7 +96,6 @@ public class UsuarioService {
         }
 
         return usuarioRepository.save(usuario);
-
     }
 
     @Transactional
