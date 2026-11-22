@@ -9,6 +9,9 @@ import wisepath.code.entity.Chat;
 
 public interface ChatRepository extends JpaRepository<Chat, Long> {
     List<Chat> findByUsuarioIdUsuarioOrderByDataCriacaoDesc(Long idUsuario);
+
     Optional<Chat> findFirstByNomeIgnoreCase(String nome);
+
     List<Chat> findByUsuarioIdUsuarioAndNomeContainingIgnoreCaseOrderByDataCriacaoDesc(Long idUsuario, String nome);
+    
 }

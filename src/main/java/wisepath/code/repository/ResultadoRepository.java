@@ -13,8 +13,8 @@ public interface ResultadoRepository extends JpaRepository<Resultado, Long> {
 
     Optional<Resultado> findByMapaMentalIdMapaMental(Long idMapaMental);
 
-
-    //EntityGraph traz chat, mapa e profissoes na mesma consulta dos chats de um usuário
+    // Carrega chat, mapa e profissões na mesma consulta (evita N+1)
     @EntityGraph(attributePaths = {"chat", "mapaMental", "profissoes"})
     List<Resultado> findByChatUsuarioIdUsuarioOrderByIdResultadoDesc(Long idUsuario);
+    
 }

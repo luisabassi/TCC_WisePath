@@ -12,9 +12,9 @@ public interface MensagemRepository extends JpaRepository<Mensagem, Long> {
 
     Optional<Mensagem> findFirstByChatIdChatOrderByIdMensagemDesc(Long idChat);
 
-    // Edição
+    // Edição: apaga só as posteriores e mantém a mensagem editada
     void deleteByChatIdChatAndIdMensagemGreaterThan(Long idChat, Long idMensagem);
 
-    // Exclusão
+    // Exclusão: apaga a mensagem escolhida e as posteriores
     void deleteByChatIdChatAndIdMensagemGreaterThanEqual(Long idChat, Long idMensagem);
 }

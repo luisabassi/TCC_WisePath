@@ -58,12 +58,4 @@ public class Chat {
         this.resultados.add(novoResultado);
         novoResultado.setChat(this);
     }
-
-    // CascadeType.PERSIST:
-    // Quando a entidade pai é salva pela primeira vez no banco,
-    // as entidades filhas também são automaticamente salvas.
-
-    // CascadeType.MERGE:
-    // Quando as alterações da entidade pai são atualizadas no banco,
-    // as entidades filhas também têm seus dados atualizados.
 }
