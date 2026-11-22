@@ -2,7 +2,7 @@
    Tela do chat
    ───────────────────────────────────────────────────────────────────────── 
 */
-.chat-wrap { display: flex; height: 100vh; overflow: hidden; }
+.chat-wrap { display: flex; height: 100vh; height: 100dvh; overflow: hidden; }
 
 .chat-sidebar {
   flex-shrink: 0; background: white; border-right: 1px solid #f0f0f5;

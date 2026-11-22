@@ -9,12 +9,13 @@ function novaSessao(idChat = null) {
     carregandoChat: false,
     erro: null,
     idMensagemEmEdicao: null,
-    seq: 0, // identifica a sincronização mais recente 
+    seq: 0, // identifica a sincronização mais recente (descarta respostas antigas)
   };
 }
 
 const CAMPOS_DA_SESSAO = ["idChat", "mensagens", "etapa", "digitando", "carregandoChat", "erro", "idMensagemEmEdicao"];
 
+// Estende-se em chat-barra-lateral.js, chat-mensagens.js e chat-edicao.js
 Telas.chat = {
   _estado: {
     sessao: novaSessao(), // a conversa que está na tela
@@ -28,9 +29,9 @@ Telas.chat = {
     resultadosBusca: null, // null = ainda sem resultado do back-end para o termo atual
     buscaCarregando: false,
     erroBusca: null,
-    buscaSeq: 0, // identifica a busca mais recente 
+    buscaSeq: 0, // identifica a busca mais recente (descarta respostas antigas)
     buscaTemporizador: null, // debounce da digitação
-    chatParaAbrir: null, // pedido vindo de outra tela 
+    chatParaAbrir: null, // pedido vindo de outra tela (ex.: "Ver conversa" no mapa mental)
   },
 
   ehMobile() {
@@ -82,6 +83,11 @@ Telas.chat = {
     this._estado.chatParaAbrir = idChat;
   },
 
+  // No celular a barra lateral começa fechada ao entrar na tela (e só abre por toque do usuário)
+  aoEntrar() {
+    if (this.ehMobile()) this._estado.barraLateralAberta = false;
+  },
+
   renderizar(raiz) {
     const estado = this._estado;
 
@@ -94,8 +100,6 @@ Telas.chat = {
     }
 
     this.atualizarUrl();
-
-    if (this.ehMobile()) estado.barraLateralAberta = false;
 
     if (!estado.chatsCarregados) this.carregarChats(raiz);
 

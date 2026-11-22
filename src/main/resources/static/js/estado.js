@@ -55,7 +55,7 @@ function telaDoCaminho(caminhoCompleto) {
   return entrada ? entrada[0] : null;
 }
 
-// Proteção de rotas no front
+// Proteção de rotas no front: telas internas exigem login e telas de acesso redirecionam quem já entrou
 function resolverTela(tela) {
   const logado = !!Autenticacao.obterToken();
   if (!tela) return logado ? "inicio" : "login";
@@ -93,10 +93,15 @@ window.addEventListener("popstate", () => {
   renderizarTelaAtual();
 });
 
+let ultimaTelaRenderizada = null;
+
 function renderizarTelaAtual() {
   const raiz = obterRaiz();
   raiz.replaceChildren();
 
   const tela = Telas[EstadoApp.tela] || Telas.cadastro;
+  if (ultimaTelaRenderizada !== EstadoApp.tela && tela.aoEntrar) tela.aoEntrar();
+  ultimaTelaRenderizada = EstadoApp.tela;
+
   tela.renderizar(raiz);
 }
