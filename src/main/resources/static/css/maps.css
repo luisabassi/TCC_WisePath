@@ -70,7 +70,7 @@
 }
 .mapview-canvas svg { display: block; touch-action: none; cursor: grab; user-select: none; }
 .mapview-canvas svg.dragging { cursor: grabbing; }
-.mapview-canvas [data-node]:focus-visible rect { stroke-width: 4; }
+.mapview-canvas [data-no]:focus-visible rect { stroke-width: 4; }
 .map-controls { position: absolute; right: 16px; bottom: 16px; display: flex; flex-direction: column; gap: 8px; }
 .map-ctrl {
   width: 40px; height: 40px; border-radius: 12px; border: none; cursor: pointer; background: white; color: #0d1b4b;
@@ -87,7 +87,7 @@
 .panel-tag { align-self: flex-start; color: white; font-weight: 700; font-size: 12px; padding: 4px 12px; border-radius: 999px; }
 .panel-list { padding-left: 18px; color: #0d1b4b; font-size: 14px; line-height: 1.7; }
 .panel-note { margin-top: 8px; }
-#panel-clear { align-self: flex-start; margin-top: 8px; }
+#painel-voltar-resumo { align-self: flex-start; margin-top: 8px; }
 
 .legend { list-style: none; display: flex; flex-direction: column; gap: 4px; }
 .legend-item {
