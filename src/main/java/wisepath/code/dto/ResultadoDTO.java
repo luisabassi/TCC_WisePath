@@ -8,20 +8,20 @@ public record ResultadoDTO(
     Long idResultado,
     String resumo,
     Long idChat,
-    MapaMentalResponseDTO mapaMental,
-    List<ProfissaoResponseDTO> profissoes
+    MapaMentalRespostaDTO mapaMental,
+    List<ProfissaoRespostaDTO> profissoes
 ) {
-    public static ResultadoDTO fromEntity(Resultado resultado) {
-        List<ProfissaoResponseDTO> profissoes = resultado.getProfissoes()
+    public static ResultadoDTO deEntidade(Resultado resultado) {
+        List<ProfissaoRespostaDTO> profissoes = resultado.getProfissoes()
                 .stream()
-                .map(ProfissaoResponseDTO::fromEntity)
+                .map(ProfissaoRespostaDTO::deEntidade)
                 .toList();
 
         return new ResultadoDTO(
             resultado.getIdResultado(),
             resultado.getResumo(),
             resultado.getChat() != null ? resultado.getChat().getIdChat() : null,
-            MapaMentalResponseDTO.fromEntity(resultado.getMapaMental()),
+            MapaMentalRespostaDTO.deEntidade(resultado.getMapaMental()),
             profissoes
         );
     }

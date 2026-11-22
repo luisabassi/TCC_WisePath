@@ -4,14 +4,14 @@ import java.time.LocalDateTime;
 
 import wisepath.code.entity.Chat;
 
-public record ChatResponseDTO(
+public record ChatRespostaDTO(
     Long idChat,
     String nome,
     LocalDateTime dataCriacao,
     Long idUsuario
 ) {
-    public static ChatResponseDTO fromEntity(Chat chat) {
-        return new ChatResponseDTO(
+    public static ChatRespostaDTO deEntidade(Chat chat) {
+        return new ChatRespostaDTO(
             chat.getIdChat(),
             chat.getNome(),
             chat.getDataCriacao(),

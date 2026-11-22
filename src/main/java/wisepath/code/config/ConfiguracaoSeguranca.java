@@ -15,12 +15,12 @@ import wisepath.code.controller.SpaController;
 import wisepath.code.security.JwtAuthenticationFilter;
 
 @Configuration
-public class SecurityConfig {
+public class ConfiguracaoSeguranca {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtAuthenticationFilter filtroAutenticacaoJwt;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    public ConfiguracaoSeguranca(JwtAuthenticationFilter filtroAutenticacaoJwt) {
+        this.filtroAutenticacaoJwt = filtroAutenticacaoJwt;
     }
 
     @Bean
@@ -40,7 +40,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, SpaController.ROTAS_FRONT).permitAll() //rotas do front-end
                 .anyRequest().authenticated()
             )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+            .addFilterBefore(filtroAutenticacaoJwt, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

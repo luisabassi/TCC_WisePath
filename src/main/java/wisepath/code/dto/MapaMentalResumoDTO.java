@@ -5,8 +5,7 @@ import java.util.List;
 
 import wisepath.code.entity.Resultado;
 
-// Tudo o que a galeria / tela de mapas precisa em uma única chamada:
-// o JSON do mapa, de qual conversa ele veio e as profissões sugeridas
+// Tudo o que a galeria de mapas precisa em uma única chamada
 public record MapaMentalResumoDTO(
     Long idMapaMental,
     Long idResultado,
@@ -15,12 +14,12 @@ public record MapaMentalResumoDTO(
     LocalDateTime dataCriacao,
     String resumo,
     String jsonMapa,
-    List<ProfissaoResponseDTO> profissoes
+    List<ProfissaoRespostaDTO> profissoes
 ) {
-    public static MapaMentalResumoDTO fromEntity(Resultado resultado) {
-        List<ProfissaoResponseDTO> profissoes = resultado.getProfissoes() == null
+    public static MapaMentalResumoDTO deEntidade(Resultado resultado) {
+        List<ProfissaoRespostaDTO> profissoes = resultado.getProfissoes() == null
                 ? List.of()
-                : resultado.getProfissoes().stream().map(ProfissaoResponseDTO::fromEntity).toList();
+                : resultado.getProfissoes().stream().map(ProfissaoRespostaDTO::deEntidade).toList();
 
         return new MapaMentalResumoDTO(
             resultado.getMapaMental().getIdMapaMental(),

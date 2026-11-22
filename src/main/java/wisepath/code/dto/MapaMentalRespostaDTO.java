@@ -2,12 +2,12 @@ package wisepath.code.dto;
 
 import wisepath.code.entity.MapaMental;
 
-public record MapaMentalResponseDTO(
+public record MapaMentalRespostaDTO(
     Long idMapaMental,
     String jsonMapa
 ){
-   public static MapaMentalResponseDTO fromEntity(MapaMental mapaMental) {
-        return new MapaMentalResponseDTO(
+   public static MapaMentalRespostaDTO deEntidade(MapaMental mapaMental) {
+        return new MapaMentalRespostaDTO(
             mapaMental.getIdMapaMental(),
             mapaMental.getJsonMapa()
         );

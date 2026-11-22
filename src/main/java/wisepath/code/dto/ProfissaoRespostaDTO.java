@@ -2,7 +2,7 @@ package wisepath.code.dto;
 
 import wisepath.code.entity.Profissao;
 
-public record ProfissaoResponseDTO(
+public record ProfissaoRespostaDTO(
     Long idProfissao,
     String nome,
     String descricao,
@@ -12,8 +12,8 @@ public record ProfissaoResponseDTO(
     String comoComecar,
     String cursosRelacionados
 ) {
-    public static ProfissaoResponseDTO fromEntity(Profissao profissao) {
-        return new ProfissaoResponseDTO(
+    public static ProfissaoRespostaDTO deEntidade(Profissao profissao) {
+        return new ProfissaoRespostaDTO(
             profissao.getIdProfissao(),
             profissao.getNome(),
             profissao.getDescricao(),
