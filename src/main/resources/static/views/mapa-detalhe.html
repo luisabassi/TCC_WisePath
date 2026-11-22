@@ -1,0 +1,74 @@
+<template id="tela">
+  <div class="mesh-bg maps-page">
+    <div data-encaixe="cabecalho"></div>
+    <div class="mapview">
+      <section class="mapview-canvas" id="mapa-area" aria-label="Mapa mental interativo">
+        <svg id="mapa-svg" width="100%" height="100%"><g id="mapa-viewport"></g></svg>
+        <div class="map-controls">
+          <button class="map-ctrl" id="zoom-aproximar" title="Aproximar" aria-label="Aproximar"><i data-icone="aproximar"></i></button>
+          <button class="map-ctrl" id="zoom-afastar" title="Afastar" aria-label="Afastar"><i data-icone="afastar"></i></button>
+          <button class="map-ctrl" id="zoom-ajustar" title="Ajustar à tela" aria-label="Ajustar à tela"><i data-icone="ajustar"></i></button>
+        </div>
+        <p class="map-hint">Arraste para mover · role para dar zoom · clique em um ramo para ver detalhes</p>
+      </section>
+      <aside class="mapview-panel" id="mapa-painel"></aside>
+    </div>
+  </div>
+</template>
+
+<template id="acoes">
+  <button class="btn-outline maps-action" id="mapa-ver-conversa"><i data-icone="balao-chat"></i><span>Ver conversa</span></button>
+  <button class="btn-primary maps-action" id="mapa-baixar-png"><i data-icone="baixar"></i><span>Baixar PNG</span></button>
+</template>
+
+<!-- Tela de espera ou de erro enquanto o mapa não está disponível -->
+<template id="casca">
+  <div class="mesh-bg maps-page">
+    <div data-encaixe="cabecalho"></div>
+    <div class="maps-empty">
+      <p style="font-size:14px" data-attr="class:classe" data-texto="mensagem"></p>
+    </div>
+  </div>
+</template>
+
+<!-- Painel lateral: ramo ou folha selecionados -->
+<template id="painel-no">
+  <span class="panel-tag" data-attr="style:estiloEtiqueta" data-texto="rotulo"></span>
+  <h2 class="panel-title" data-se="titulo" data-texto="titulo"></h2>
+  <p class="muted" data-se="ehFolha">Faz parte de <strong data-texto="descricaoRamo"></strong>.</p>
+  <p class="muted" data-senao="ehFolha" data-texto="contagem"></p>
+  <ul class="panel-list" data-senao="ehFolha">
+    <li data-encaixe="itens"></li>
+  </ul>
+  <div class="panel-career" data-se="carreira">
+    <p data-se="descricao" data-texto="descricao"></p>
+    <p data-se="mediaSalarial"><strong>Média salarial:</strong> <span data-texto="mediaSalarial"></span></p>
+    <p data-se="empregabilidade"><strong>Empregabilidade:</strong> <span data-texto="empregabilidade"></span></p>
+  </div>
+  <button class="btn-ghost muted underline" id="painel-voltar-resumo">← Voltar ao resumo</button>
+</template>
+
+<template id="item-lista">
+  <li data-texto="texto"></li>
+</template>
+
+<!-- Painel lateral: resumo do mapa -->
+<template id="painel-resumo">
+  <p class="section-label">Resumo</p>
+  <h2 class="panel-title" data-texto="titulo"></h2>
+  <p class="muted panel-summary" data-se="resumo" data-texto="resumo"></p>
+  <ul class="legend">
+    <li data-encaixe="itens"></li>
+  </ul>
+  <p class="muted panel-note" data-se="semRamos">Não foi possível montar os ramos deste mapa.</p>
+</template>
+
+<template id="item-legenda">
+  <li>
+    <button class="legend-item" data-attr="data-ramo:ramo">
+      <span class="legend-dot" data-attr="style:estiloPonto"></span>
+      <span class="legend-text"><strong data-texto="rotulo"></strong><small data-se="descricao" data-texto="descricao"></small></span>
+      <span class="legend-count" data-texto="quantidade"></span>
+    </button>
+  </li>
+</template>

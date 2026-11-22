@@ -1,0 +1,60 @@
+<!--
+  Peças SVG do mapa mental. Cada peça vem embrulhada em <svg> para o navegador
+  criar os elementos no namespace SVG; Modelos.criarPecaSvg() devolve só o conteúdo.
+-->
+
+<template id="aresta">
+  <svg>
+    <path fill="none" stroke-linecap="round" opacity="0.55" data-attr="d:caminho;stroke:cor;stroke-width:espessura" />
+  </svg>
+</template>
+
+<!-- Centro e ramos: retângulo preenchido -->
+<template id="no-preenchido">
+  <svg>
+    <g data-attr="data-no:idNo;tabindex:tabindex;role:papel;aria-label:rotulo;style:estilo">
+      <rect data-attr="x:x;y:y;width:largura;height:altura;rx:raio;fill:cor;stroke:contorno;stroke-width:larguraContorno" />
+      <g data-encaixe="linhas"></g>
+    </g>
+  </svg>
+</template>
+
+<!-- Folhas: retângulo branco com borda colorida -->
+<template id="no-folha">
+  <svg>
+    <g data-attr="data-no:idNo;tabindex:tabindex;role:papel;aria-label:rotulo;style:estilo">
+      <rect data-attr="x:x;y:y;width:largura;height:altura;rx:raio;fill:cor;stroke:contorno;stroke-width:larguraContorno" />
+      <g data-encaixe="linhas"></g>
+    </g>
+  </svg>
+</template>
+
+<template id="linha-texto">
+  <svg>
+    <text text-anchor="middle" dominant-baseline="central" font-family="'Plus Jakarta Sans', system-ui, sans-serif"
+      data-attr="x:x;y:y;font-size:tamanho;font-weight:peso;fill:cor" data-texto="texto"></text>
+  </svg>
+</template>
+
+<template id="botao-recolher">
+  <svg>
+    <g style="cursor:pointer" data-attr="data-recolher:ramo">
+      <circle r="11" fill="#fff" stroke-width="2" data-attr="cx:cx;cy:cy;stroke:cor" />
+      <text text-anchor="middle" dominant-baseline="central" font-size="13" font-weight="800"
+        font-family="'Plus Jakarta Sans', system-ui, sans-serif" data-attr="x:cx;y:cyTexto;fill:cor" data-texto="rotulo"></text>
+    </g>
+  </svg>
+</template>
+
+<template id="miniatura">
+  <svg preserveAspectRatio="xMidYMid meet" aria-hidden="true" data-attr="viewBox:viewBox">
+    <g data-encaixe="conteudo"></g>
+  </svg>
+</template>
+
+<template id="exportacao">
+  <svg xmlns="http://www.w3.org/2000/svg" data-attr="width:largura;height:altura;viewBox:viewBox">
+    <rect fill="#ffffff" data-attr="x:x;y:y;width:largura;height:altura" />
+    <g data-encaixe="conteudo"></g>
+  </svg>
+</template>

@@ -1,0 +1,48 @@
+<template id="tela">
+  <div class="auth-grid">
+    <div data-encaixe="painel"></div>
+    <div class="auth-right">
+      <div class="auth-form-wrap">
+
+        <div class="logo-row logo-row-center">
+          <img src="/assets/logo.png" alt="WisePath" />
+          <span class="logo-text">WisePath</span>
+        </div>
+
+        <h2 class="h2 auth-title">Crie sua conta</h2>
+        <p class="muted auth-subtitle">Comece sua jornada de descoberta com Ikigai</p>
+
+        <form id="formulario-cadastro" class="auth-form">
+          <div class="field">
+            <label for="cadastro-nome">Nome:</label>
+            <div class="field-wrap">
+              <input id="cadastro-nome" type="text" placeholder="Como podemos te chamar?" autocomplete="off" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="cadastro-email">Email:</label>
+            <div class="field-wrap">
+              <input id="cadastro-email" type="email" placeholder="seuemail@gmail.com" autocomplete="off" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="cadastro-senha">Senha:</label>
+            <div class="field-wrap">
+              <input id="cadastro-senha" type="password" data-attr="placeholder:dicaSenha" autocomplete="off" />
+              <button type="button" class="eye-btn" data-alternar-para="cadastro-senha"><i data-icone="olho"></i></button>
+            </div>
+          </div>
+          <div id="cadastro-feedback"></div>
+          <div class="auth-form-submit">
+            <button type="submit" class="btn-primary" id="cadastro-enviar">Criar conta</button>
+          </div>
+        </form>
+
+        <p class="muted auth-footer-text">
+          Já tem conta? <button class="link-btn" id="ir-para-login">Entrar</button>
+        </p>
+
+      </div>
+    </div>
+  </div>
+</template>

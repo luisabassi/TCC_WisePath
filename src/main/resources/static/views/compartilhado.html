@@ -1,0 +1,66 @@
+<!--
+  Peças reutilizadas por mais de uma tela.
+  Diretivas (ver js/modelos.js): data-texto, data-valor, data-conteudo, data-attr,
+  data-se, data-senao, data-encaixe, data-icone.
+-->
+
+<template id="painel-autenticacao">
+  <div class="auth-left">
+    <div class="auth-left-content">
+      <h1 class="h1 auth-left-title">Descubra seu propósito</h1>
+      <p class="auth-left-desc">
+        O WisePath utiliza o Ikigai e a Inteligência Artificial para ajudar jovens a conhecerem
+        melhor suas habilidades, interesses e possíveis caminhos profissionais. Conheça a si mesmo
+        e encontre a direção para o seu futuro.
+      </p>
+    </div>
+    <div class="pillar-grid">
+      <div class="pillar-card">
+        <span class="pillar-emoji">🩷</span>
+        <div><div class="pillar-label">Aquilo que você ama</div></div>
+      </div>
+      <div class="pillar-card">
+        <span class="pillar-emoji">🧭</span>
+        <div><div class="pillar-label">Aquilo que você é bom</div></div>
+      </div>
+      <div class="pillar-card">
+        <span class="pillar-emoji">🌐</span>
+        <div><div class="pillar-label">O que o mundo precisa</div></div>
+      </div>
+      <div class="pillar-card">
+        <span class="pillar-emoji">💼</span>
+        <div><div class="pillar-label">Pelo que você pode ser remunerado</div></div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="avatar">
+  <button class="avatar" data-texto="iniciais"></button>
+</template>
+
+<template id="cabecalho-mapas">
+  <header class="maps-header">
+    <button class="back-btn" id="mapas-voltar" title="Voltar" aria-label="Voltar"><i data-icone="seta-esquerda" data-icone-cor="#fff"></i></button>
+    <div class="maps-header-text">
+      <h1 class="h1 maps-title" data-texto="titulo"></h1>
+      <p class="maps-subtitle" data-se="subtitulo" data-texto="subtitulo"></p>
+    </div>
+    <div class="maps-header-right">
+      <div data-encaixe="acoes"></div>
+      <div class="logo-row logo-row-sm">
+        <img src="/assets/logo.png" alt="" />
+        <span class="logo-text">WisePath</span>
+      </div>
+      <div data-encaixe="avatar"></div>
+    </div>
+  </header>
+</template>
+
+<template id="feedback-erro">
+  <p class="feedback-err" data-texto="mensagem"></p>
+</template>
+
+<template id="feedback-sucesso">
+  <p class="feedback-ok">✓ <span data-texto="mensagem"></span></p>
+</template>

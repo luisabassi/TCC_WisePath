@@ -1,0 +1,127 @@
+<template id="tela">
+  <div class="mesh-bg settings-page">
+    <div class="settings-card">
+
+      <aside class="settings-sidebar">
+        <div class="settings-sidebar-header">
+          <button class="icon-btn" id="configuracoes-voltar" title="Voltar"><i data-icone="seta-esquerda"></i></button>
+          <div class="settings-sidebar-title">Configurações</div>
+        </div>
+        <nav class="settings-sidebar-nav">
+          <button class="settings-nav-item" data-aba="perfil"><span class="nav-icon">👤</span>Perfil</button>
+          <button class="settings-nav-item" data-aba="seguranca"><span class="nav-icon">🔒</span>Segurança</button>
+          <button class="settings-nav-item" data-aba="excluir-conta"><span class="nav-icon">🗑️</span>Excluir conta</button>
+          <button class="settings-nav-item" data-aba="sobre"><span class="nav-icon">ℹ️</span>Sobre</button>
+        </nav>
+      </aside>
+
+      <div class="settings-content" id="configuracoes-conteudo"></div>
+
+    </div>
+  </div>
+</template>
+
+<template id="aba-perfil">
+  <div class="settings-section-title">Perfil</div>
+
+  <div class="avatar-picker">
+    <div class="avatar-picker-wrap">
+      <div data-encaixe="avatar"></div>
+    </div>
+  </div>
+
+  <div class="settings-fields">
+    <div class="field">
+      <label for="perfil-nome">Nome</label>
+      <div class="field-wrap">
+        <input id="perfil-nome" type="text" placeholder="Seu nome" data-valor="nome" autocomplete="off" />
+      </div>
+    </div>
+    <div class="field">
+      <label for="perfil-email">Email</label>
+      <div class="field-wrap">
+        <input id="perfil-email" type="email" placeholder="seuemail@gmail.com" data-valor="email" autocomplete="off" />
+      </div>
+    </div>
+  </div>
+
+  <div id="perfil-feedback"></div>
+  <div class="settings-btns">
+    <button class="btn-secondary" id="perfil-voltar">Voltar</button>
+    <button class="btn-primary" id="perfil-salvar">Salvar</button>
+  </div>
+</template>
+
+<template id="aba-seguranca">
+  <div class="settings-section-title">Segurança</div>
+
+  <div class="settings-fields">
+    <p class="section-label">Alterar senha</p>
+    <div class="field">
+      <label for="seguranca-nova-senha">Nova senha</label>
+      <div class="field-wrap">
+        <input id="seguranca-nova-senha" type="password" data-attr="placeholder:dicaSenha" autocomplete="off" />
+        <button type="button" class="eye-btn" data-alternar-para="seguranca-nova-senha"><i data-icone="olho"></i></button>
+      </div>
+    </div>
+    <div class="field">
+      <label for="seguranca-confirmar-senha">Confirmar nova senha</label>
+      <div class="field-wrap">
+        <input id="seguranca-confirmar-senha" type="password" placeholder="Repita a nova senha" autocomplete="off" />
+        <button type="button" class="eye-btn" data-alternar-para="seguranca-confirmar-senha"><i data-icone="olho"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="seguranca-feedback"></div>
+  <div class="settings-btns">
+    <button class="btn-secondary" id="seguranca-voltar">Voltar</button>
+    <button class="btn-primary" id="seguranca-salvar">Salvar</button>
+  </div>
+</template>
+
+<template id="aba-excluir-conta">
+  <div class="settings-section-title">Excluir conta</div>
+
+  <p class="muted">Essa ação é permanente e não pode ser desfeita. Todos os seus chats,
+  mensagens e resultados serão apagados.</p>
+
+  <div class="settings-fields">
+    <p class="section-label">Digite sua senha atual para confirmar:</p>
+    <div class="field">
+      <label for="excluir-conta-senha">Senha</label>
+      <div class="field-wrap">
+        <input id="excluir-conta-senha" type="password" placeholder="Digite a senha" autocomplete="off" />
+        <button type="button" class="eye-btn" data-alternar-para="excluir-conta-senha"><i data-icone="olho"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="excluir-conta-feedback"></div>
+  <div class="settings-btns">
+    <button class="btn-secondary" id="excluir-conta-voltar">Voltar</button>
+    <button class="btn-primary" id="excluir-conta-confirmar">Excluir conta</button>
+  </div>
+</template>
+
+<template id="aba-sobre">
+  <div class="settings-section-title">Sobre</div>
+
+  <div class="about-brand">
+    <img src="/assets/logo.png" alt="WisePath" class="about-logo" />
+    <span class="about-brand-name">WisePath</span>
+    <span class="about-brand-version">Versão 1.0.0</span>
+  </div>
+
+  <div>
+    <div class="about-row"><span class="about-key">Desenvolvido por</span><span class="about-val">Equipe WisePath</span></div>
+    <div class="about-row"><span class="about-key">Tecnologia</span><span class="about-val">Ikigai + IA</span></div>
+    <div class="about-row"><span class="about-key">Público-alvo</span><span class="about-val">Jovens do ensino médio</span></div>
+    <div class="about-row"><span class="about-key">Última atualização</span><span class="about-val">Dezembro - 2026</span></div>
+    <div class="about-row"><span class="about-key">Suporte</span><span class="about-val">suportewisepath@gmail.com</span></div>
+  </div>
+
+  <div class="settings-btns">
+    <button class="btn-secondary settings-btn-solo" id="sobre-voltar">Voltar</button>
+  </div>
+</template>

@@ -1,0 +1,42 @@
+<template id="tela">
+  <div class="auth-grid">
+    <div data-encaixe="painel"></div>
+    <div class="auth-right">
+      <div class="auth-form-wrap">
+
+        <div class="logo-stack">
+          <img src="/assets/logo.png" alt="WisePath" />
+          <span class="logo-text">WisePath</span>
+        </div>
+
+        <h2 class="h2 auth-title">Bem vindo(a) de volta!</h2>
+        <p class="muted auth-subtitle">Entre na sua conta para continuar sua jornada com o ikigai</p>
+
+        <form id="formulario-login" class="auth-form">
+          <div class="field">
+            <label for="login-email">Email:</label>
+            <div class="field-wrap">
+              <input id="login-email" type="email" placeholder="seuemail@gmail.com" autocomplete="off" />
+            </div>
+          </div>
+          <div class="field">
+            <label for="login-senha">Senha:</label>
+            <div class="field-wrap">
+              <input id="login-senha" type="password" placeholder="••••••••" autocomplete="off" />
+              <button type="button" class="eye-btn" data-alternar-para="login-senha"><i data-icone="olho"></i></button>
+            </div>
+          </div>
+          <div id="login-feedback"></div>
+          <div class="auth-form-submit">
+            <button type="submit" class="btn-primary" id="login-enviar">Entrar</button>
+          </div>
+        </form>
+
+        <p class="muted auth-footer-text">
+          Não tem conta? <button class="link-btn" id="ir-para-cadastro">Cadastre-se</button>
+        </p>
+
+      </div>
+    </div>
+  </div>
+</template>

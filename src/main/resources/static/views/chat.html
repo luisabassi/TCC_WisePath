@@ -1,0 +1,160 @@
+<template id="tela">
+  <div class="chat-wrap">
+    <div class="sidebar-overlay" id="chat-sobreposicao"></div>
+
+    <aside class="chat-sidebar" id="chat-barra-lateral">
+      <div class="sidebar-top">
+        <img src="/assets/logo.png" alt="WisePath" class="sidebar-logo" />
+        <button class="icon-btn" id="chat-fechar-barra"><i data-icone="fechar-barra-lateral"></i></button>
+      </div>
+      <div class="sidebar-actions">
+        <button class="sidebar-pill-btn sidebar-pill-btn-primary" id="chat-novo">
+          <span class="sidebar-pill-icon"><i data-icone="mais"></i></span>Novo Chat
+        </button>
+        <button class="sidebar-pill-btn sidebar-pill-btn-outline" id="chat-buscar">
+          <span class="sidebar-pill-icon"><i data-icone="buscar"></i></span>Buscar chats
+        </button>
+        <div data-encaixe="campo-busca"></div>
+      </div>
+      <div class="sidebar-recents" id="chat-recentes"></div>
+      <div class="sidebar-bottom">
+        <button class="icon-btn" id="chat-inicio" title="Início"><i data-icone="inicio"></i></button>
+        <button class="icon-btn" id="chat-mapas" title="Meus mapas mentais"><i data-icone="mapa-mental"></i></button>
+        <button class="icon-btn" id="chat-sair" title="Sair"><i data-icone="sair-pequeno"></i></button>
+      </div>
+    </aside>
+
+    <div class="chat-main">
+      <div class="chat-topbar">
+        <button class="icon-btn" id="chat-abrir-barra" data-senao="barraLateralAberta"><i data-icone="abrir-barra-lateral"></i></button>
+      </div>
+
+      <div class="chat-messages" id="chat-mensagens"></div>
+
+      <div class="chat-input-bar">
+        <p class="feedback-err" style="text-align:center;margin-bottom:6px;" data-se="erro" data-texto="erro"></p>
+        <div class="chat-input-wrap">
+          <input class="chat-input" type="text" id="chat-entrada" placeholder='Digite "Olá" para começar' autocomplete="off" />
+          <button class="send-btn" id="chat-enviar" disabled><i data-icone="enviar" data-icone-cor="#c0c8d8"></i></button>
+        </div>
+        <p class="chat-footer">
+          O WisePath oferece orientação, não garantias. Seja aberto e honesto para os melhores resultados.
+        </p>
+      </div>
+    </div>
+  </div>
+</template>
+
+<!-- Barra lateral -->
+
+<template id="campo-busca">
+  <input class="sidebar-search-input" id="chat-campo-busca" type="text" placeholder="Buscar por nome…" data-valor="termo" autocomplete="off" />
+</template>
+
+<template id="rotulo-recentes">
+  <div class="sidebar-recents-label" data-texto="rotulo"></div>
+</template>
+
+<template id="aviso-lateral">
+  <p class="sidebar-empty" data-texto="mensagem"></p>
+</template>
+
+<template id="linha-chat">
+  <div class="sidebar-chat-row">
+    <button class="sidebar-chat-item" data-attr="data-id-chat:idChat" data-texto="nome"></button>
+    <div class="sidebar-chat-actions">
+      <button class="chat-action-btn" data-acao="nova-janela" data-attr="data-id-chat:idChat"
+        title="Abrir em nova janela" aria-label="Abrir conversa em nova janela"><i data-icone="link-externo"></i></button>
+      <button class="chat-action-btn" data-acao="renomear" data-attr="data-id-chat:idChat"
+        title="Renomear" aria-label="Renomear conversa"><i data-icone="lapis"></i></button>
+      <button class="chat-action-btn chat-action-danger" data-acao="excluir" data-attr="data-id-chat:idChat"
+        title="Excluir" aria-label="Excluir conversa"><i data-icone="lixeira"></i></button>
+    </div>
+  </div>
+</template>
+
+<template id="linha-chat-edicao">
+  <div class="sidebar-chat-row">
+    <input class="sidebar-chat-edit" maxlength="100" data-attr="data-id-chat:idChat" data-valor="nome" />
+  </div>
+</template>
+
+<!-- Área de mensagens -->
+
+<template id="carregando-conversa">
+  <div class="chat-empty"><p class="muted">Carregando conversa…</p></div>
+</template>
+
+<template id="conversa-vazia">
+  <div class="chat-empty">
+    <img src="/assets/logo.png" alt="WisePath" class="chat-empty-logo" />
+    <h2 class="h1 chat-empty-title">Encontre seu caminho com o ikigai</h2>
+    <p class="muted chat-empty-desc">
+      Vou te guiar por algumas perguntas para descobrir carreiras onde aquilo que você ama,
+      aquilo que você é bom, o que o mundo precisa e pelo que você pode ser remunerado se encontram.
+    </p>
+  </div>
+</template>
+
+<template id="lista-mensagens">
+  <div class="chat-messages-list">
+    <div data-encaixe="linhas"></div>
+    <div id="chat-ancora-final"></div>
+  </div>
+</template>
+
+<template id="linha-chatbot">
+  <div class="msg-row msg-row-in">
+    <img src="/assets/logo.png" alt="bot" class="msg-avatar" />
+    <div class="msg-bubble bot" data-conteudo="texto"></div>
+  </div>
+</template>
+
+<template id="linha-chatbot-mapa">
+  <div class="msg-row msg-row-in">
+    <img src="/assets/logo.png" alt="bot" class="msg-avatar" />
+    <div class="msg-stack">
+      <div class="msg-bubble bot" data-conteudo="texto"></div>
+      <button class="map-cta" data-attr="data-id-mapa:idMapa">
+        <span class="map-cta-icon"><i data-icone="mapa-mental" data-icone-cor="#fff"></i></span>
+        <span class="map-cta-text"><strong>Seu mapa mental está pronto</strong><small>Toque para visualizar</small></span>
+        <span class="map-cta-arrow">→</span>
+      </button>
+    </div>
+  </div>
+</template>
+
+<template id="linha-usuario">
+  <div class="msg-row msg-row-in user">
+    <div class="msg-user-group">
+      <div class="msg-actions" data-se="podeAlterar">
+        <button type="button" class="msg-action-btn" data-acao-mensagem="editar" data-attr="data-id-mensagem:idMensagem"
+          title="Editar" aria-label="Editar mensagem"><i data-icone="lapis"></i></button>
+        <button type="button" class="msg-action-btn danger" data-acao-mensagem="excluir" data-attr="data-id-mensagem:idMensagem"
+          title="Excluir" aria-label="Excluir mensagem"><i data-icone="lixeira"></i></button>
+      </div>
+      <div class="msg-bubble user" data-conteudo="texto"></div>
+    </div>
+  </div>
+</template>
+
+<template id="linha-usuario-edicao">
+  <div class="msg-row msg-row-in user">
+    <div class="msg-edit" data-attr="data-id-mensagem:idMensagem">
+      <textarea class="msg-edit-input" rows="1" maxlength="5000" aria-label="Editar mensagem" data-valor="conteudo"></textarea>
+      <div class="msg-edit-actions">
+        <button type="button" class="msg-edit-btn" data-acao-edicao="cancelar">Cancelar</button>
+        <button type="button" class="msg-edit-btn primary" data-acao-edicao="salvar">Salvar</button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<template id="linha-digitando">
+  <div class="msg-row msg-row-in">
+    <img src="/assets/logo.png" alt="bot" class="msg-avatar" />
+    <div class="msg-bubble bot">
+      <div class="typing-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+    </div>
+  </div>
+</template>

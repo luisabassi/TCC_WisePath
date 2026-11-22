@@ -1,0 +1,52 @@
+<template id="tela">
+  <div class="mesh-bg maps-page maps-gallery">
+    <div data-encaixe="cabecalho"></div>
+    <div class="maps-toolbar">
+      <div class="maps-search">
+        <span class="maps-search-icon"><i data-icone="buscar"></i></span>
+        <input type="search" id="mapas-busca" placeholder="Buscar por nome do chat" data-valor="consulta" autocomplete="off" />
+      </div>
+      <span class="maps-count" id="mapas-contagem"></span>
+    </div>
+    <main class="maps-grid" id="mapas-grade"></main>
+  </div>
+</template>
+
+<template id="carregando">
+  <div class="maps-empty"><p class="muted">Carregando seus mapas…</p></div>
+</template>
+
+<template id="erro">
+  <div class="maps-empty">
+    <h2 class="h2">Não foi possível carregar seus mapas</h2>
+    <p class="muted" data-texto="mensagem"></p>
+    <button class="btn-primary maps-empty-btn" id="mapas-tentar-novamente">Tentar de novo</button>
+  </div>
+</template>
+
+<template id="vazio">
+  <div class="maps-empty">
+    <img src="/assets/logo.png" alt="" class="maps-empty-logo" />
+    <h2 class="h2">Você ainda não tem mapas mentais</h2>
+    <p class="muted">Ao terminar as perguntas do chat, o WisePath monta um mapa com tudo o que você compartilhou.</p>
+    <button class="btn-primary maps-empty-btn" id="mapas-iniciar">Iniciar conversa</button>
+  </div>
+</template>
+
+<template id="sem-resultado">
+  <div class="maps-empty">
+    <h2 class="h2">Nenhum resultado</h2>
+    <p class="muted">Nenhum mapa com “<span data-texto="consulta"></span>”.</p>
+  </div>
+</template>
+
+<template id="cartao-mapa">
+  <button class="map-card" data-attr="data-id:id">
+    <span class="map-card-badge" data-se="novo">Novo</span>
+    <div class="map-card-preview" data-conteudo="miniatura"></div>
+    <div class="map-card-footer">
+      <span class="map-card-name" data-texto="nome"></span>
+      <span class="map-card-meta" data-texto="meta"></span>
+    </div>
+  </button>
+</template>
