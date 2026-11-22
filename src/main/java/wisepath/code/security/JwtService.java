@@ -16,26 +16,26 @@ import io.jsonwebtoken.security.Keys;
 @Service
 public class JwtService {
     @Value("${jwt.secret}")
-    private String secret;
+    private String segredo;
 
     @Value("${jwt.expiration-ms}")
-    private long expirationMs;
+    private long expiracaoMs;
 
     public String gerarToken(Long idUsuario, String email) {
         Date agora = new Date();
-        Date expiracao = new Date(agora.getTime() + expirationMs);
+        Date expiracao = new Date(agora.getTime() + expiracaoMs);
 
         return Jwts.builder()
                 .subject(String.valueOf(idUsuario))
                 .claim("email", email)
                 .issuedAt(agora)
                 .expiration(expiracao)
-                .signWith(getSigningKey())
+                .signWith(obterChaveAssinatura())
                 .compact();
     }
 
     public Long extrairIdUsuario(String token) {
-        return Long.valueOf(extrairClaim(token, Claims::getSubject));
+        return Long.valueOf(extrairDeclaracao(token, Claims::getSubject));
     }
 
     public boolean tokenValido(String token) {
@@ -47,23 +47,23 @@ public class JwtService {
     }
 
     private boolean tokenExpirado(String token) {
-        return extrairClaim(token, Claims::getExpiration).before(new Date());
+        return extrairDeclaracao(token, Claims::getExpiration).before(new Date());
     }
 
-    private <T> T extrairClaim(String token, Function<Claims, T> resolver) {
-        return resolver.apply(extrairTodasClaims(token));
+    private <T> T extrairDeclaracao(String token, Function<Claims, T> extrator) {
+        return extrator.apply(extrairTodasDeclaracoes(token));
     }
 
-    private Claims extrairTodasClaims(String token) {
+    private Claims extrairTodasDeclaracoes(String token) {
         return Jwts.parser()
-                .verifyWith(getSigningKey())
+                .verifyWith(obterChaveAssinatura())
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
     }
 
-    private SecretKey getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secret);
-        return Keys.hmacShaKeyFor(keyBytes);
+    private SecretKey obterChaveAssinatura() {
+        byte[] bytesChave = Decoders.BASE64.decode(segredo);
+        return Keys.hmacShaKeyFor(bytesChave);
     }
 }

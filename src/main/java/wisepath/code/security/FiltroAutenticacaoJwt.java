@@ -15,29 +15,31 @@ import jakarta.servlet.http.HttpServletResponse;
 import wisepath.code.repository.UsuarioRepository;
 
 @Component
-public class JwtAuthenticationFilter extends OncePerRequestFilter {
+public class FiltroAutenticacaoJwt extends OncePerRequestFilter {
+
+    private static final String PREFIXO_BEARER = "Bearer ";
 
     private final JwtService jwtService;
     private final UsuarioRepository usuarioRepository;
 
-    public JwtAuthenticationFilter(JwtService jwtService, UsuarioRepository usuarioRepository) {
+    public FiltroAutenticacaoJwt(JwtService jwtService, UsuarioRepository usuarioRepository) {
         this.jwtService = jwtService;
         this.usuarioRepository = usuarioRepository;
     }
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request,
-                                     HttpServletResponse response,
-                                     FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest requisicao,
+                                    HttpServletResponse resposta,
+                                    FilterChain cadeiaFiltros) throws ServletException, IOException {
 
-        String authHeader = request.getHeader("Authorization");
+        String cabecalhoAutorizacao = requisicao.getHeader("Authorization");
 
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
+        if (cabecalhoAutorizacao == null || !cabecalhoAutorizacao.startsWith(PREFIXO_BEARER)) {
+            cadeiaFiltros.doFilter(requisicao, resposta);
             return;
         }
 
-        String token = authHeader.substring(7);
+        String token = cabecalhoAutorizacao.substring(PREFIXO_BEARER.length());
 
         if (jwtService.tokenValido(token)) {
             Long idUsuario = jwtService.extrairIdUsuario(token);
@@ -48,6 +50,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             });
         }
 
-        filterChain.doFilter(request, response);
+        cadeiaFiltros.doFilter(requisicao, resposta);
     }
 }
