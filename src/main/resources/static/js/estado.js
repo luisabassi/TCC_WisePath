@@ -55,7 +55,7 @@ function telaDoCaminho(caminhoCompleto) {
   return entrada ? entrada[0] : null;
 }
 
-// Proteção de rotas no front: telas internas exigem login e telas de acesso redirecionam quem já entrou
+// Proteção de rotas no front
 function resolverTela(tela) {
   const logado = !!Autenticacao.obterToken();
   if (!tela) return logado ? "inicio" : "login";

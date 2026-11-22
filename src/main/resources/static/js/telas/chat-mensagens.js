@@ -1,4 +1,4 @@
-// Lista de mensagens e card do resultado da análise (estende Telas.chat)
+// Lista de mensagens e card do resultado da análise 
 Object.assign(Telas.chat, {
   montarMensagemResultado(resultado) {
     const profissoes = (resultado.profissoes || [])
@@ -25,7 +25,6 @@ Object.assign(Telas.chat, {
     };
   },
 
-  // `sessao` é a conversa dona do resultado: pode não ser a da tela quando a IA terminar
   async gerarResultado(raiz, sessao = this._estado.sessao) {
     sessao.digitando = true;
     if (this.sessaoVisivel(sessao)) this.renderizarMensagens(raiz);

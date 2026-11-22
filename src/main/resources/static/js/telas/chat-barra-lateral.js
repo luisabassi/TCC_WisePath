@@ -1,4 +1,4 @@
-// Barra lateral: lista, busca, renomear e excluir chats (estende Telas.chat)
+// Barra lateral: lista, busca, renomear e excluir chats 
 Object.assign(Telas.chat, {
   async carregarChats(raiz) {
     const estado = this._estado;
@@ -182,7 +182,7 @@ Object.assign(Telas.chat, {
 
     estado.chats = estado.chats.filter((c) => c.idChat !== idChat);
     estado.sessoes.delete(idChat);
-    // o back-end apaga o resultado e o mapa mental junto com o chat
+   
     CacheMapas.mapas = CacheMapas.mapas.filter((m) => m.idChat !== idChat);
     if (estado.resultadosBusca) {
       estado.resultadosBusca = estado.resultadosBusca.filter((c) => c.idChat !== idChat);
@@ -305,12 +305,10 @@ Object.assign(Telas.chat, {
       estado.termoBusca = campo.value;
       clearTimeout(estado.buscaTemporizador);
       if (!campo.value.trim()) {
-        this.executarBusca(raiz); // campo vazio: volta à lista normal na hora
+        this.executarBusca(raiz); 
         return;
       }
-      // na primeira digitação troca a lista cheia por "Buscando…" (não mostra chats sem filtro)
       if (estado.resultadosBusca === null) this.atualizarListaChats(raiz);
-      // espera o usuário parar de digitar antes de chamar o back-end
       estado.buscaTemporizador = setTimeout(() => this.executarBusca(raiz), 300);
     });
     campo.addEventListener("keydown", (evento) => {

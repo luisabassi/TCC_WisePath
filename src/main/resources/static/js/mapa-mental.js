@@ -59,23 +59,28 @@ const MapaMental = {
     const ramos = { paixao: [], talento: [], missao: [], profissao: [], carreiras: [] };
     const infoCarreiras = {};
 
-    // Ramos do Ikigai: JSON montado pela IA a partir das respostas do chat
+    // Ramos do Ikigai
     const interpretado = this.interpretarJsonMapa(dto.jsonMapa);
     const ramosBrutos = interpretado && Array.isArray(interpretado.ramos) ? interpretado.ramos : [];
+
     ramosBrutos.forEach((ramo, indice) => {
+
       if (!ramo || typeof ramo !== "object") return;
-      // Se a IA usar um nome inesperado, a posição (0..3) decide o ramo
+      // Se a IA usar um nome inesperado, a posição decide o ramo
+
       const chave = this.ALIAS_DIMENSOES[this._normalizar(ramo.dimensao)] || ORDEM_RAMOS_MAPA[indice];
       if (!chave || chave === "carreiras" || !ramos[chave]) return;
+
       const itens = Array.isArray(ramo.itens) ? ramo.itens : [];
       itens
         .map((item) => this._limpar(item))
         .filter(Boolean)
         .forEach((item) => ramos[chave].push(item));
       ramos[chave] = ramos[chave].slice(0, this.MAX_ITENS_POR_RAMO);
+
     });
 
-    // Carreiras sugeridas: vêm das profissões do resultado
+    // Carreiras sugeridas
     (dto.profissoes || []).forEach((profissao) => {
       const nome = this._limpar(profissao && profissao.nome);
       if (!nome) return;
@@ -278,7 +283,7 @@ const MapaMental = {
     );
   },
 
-  // Miniatura dos cards da galeria: só a forma do mapa, sem texto
+  // Miniatura dos cards da galeria
   miniatura(mapa) {
     const disposicao = this.calcularDisposicao(mapa);
     const margem = 24;
@@ -290,7 +295,7 @@ const MapaMental = {
     ).firstElementChild;
   },
 
-  // Exporta o mapa completo (mesmo com ramos recolhidos na tela) como PNG 2x com fundo branco
+  // Exporta o mapa completo 
   exportarPng(mapa, nomeArquivo) {
     const disposicao = this.calcularDisposicao(mapa);
     const margem = 40;
@@ -339,11 +344,13 @@ const CacheMapas = {
   async carregar() {
     const geracao = this._geracao;
     const lista = await Api.listarMapas();
+
     // houve logout enquanto a resposta vinha: ela é de outra sessão e não pode entrar no cache
     if (geracao !== this._geracao) return this.mapas;
     this.mapas = (lista || []).map((dto) => MapaMental.deResumo(dto));
     this.carregado = true;
     return this.mapas;
+    
   },
 
   obter(id) {

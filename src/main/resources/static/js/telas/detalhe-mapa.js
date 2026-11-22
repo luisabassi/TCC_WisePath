@@ -6,7 +6,7 @@ Telas.detalheMapa = {
     const id = EstadoApp.idMapaSelecionado;
     const mapa = CacheMapas.obter(id);
 
-    // Mapa fora do cache (recém-gerado ou link direto): busca no back-end
+    // Mapa fora do cache (recém-gerado ou link direto)
     if (!mapa) {
       this.renderizarCasca(raiz, "Carregando mapa…");
       CacheMapas.garantir(id)
@@ -24,7 +24,7 @@ Telas.detalheMapa = {
 
     const estado = this._estado;
 
-    // Mapa diferente do último aberto: zera seleção, ramos recolhidos e zoom
+    // Mapa diferente do último aberto
     if (estado.idMapa !== mapa.id) {
       estado.idMapa = mapa.id;
       estado.recolhidos = new Set();

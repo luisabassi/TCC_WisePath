@@ -1,6 +1,6 @@
-// Edição inline e exclusão de mensagens do usuário (estende Telas.chat)
+// Edição inline e exclusão de mensagens do usuário 
 Object.assign(Telas.chat, {
-  // Só mensagens do usuário já salvas no servidor (id numérico) têm os ícones de editar/excluir
+  // Só mensagens do usuário já salvas no servidor têm os ícones de editar/excluir
   podeAlterarMensagem(mensagem) {
     return mensagem.autor === "usuario" && typeof mensagem.id === "number" && !mensagem.pendente;
   },
@@ -117,7 +117,7 @@ Object.assign(Telas.chat, {
       this.descartarResultadoLocal(sessao);
       this.recalcularEtapa(sessao);
     } catch (erro) {
-      // o back-end só grava depois que a IA responde: nada mudou lá
+      // o back-end só grava depois que a IA responde
       sessao.mensagens = anteriores;
       sessao.digitando = false;
       sessao.erro = erro.message;

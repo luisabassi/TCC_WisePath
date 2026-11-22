@@ -22,7 +22,7 @@ Telas.mapas = {
     this.carregar(raiz);
   },
 
-  // Consulta o back-end a cada abertura (pode ter nascido um mapa novo no chat).
+  // Consulta o back-end a cada abertura 
   // Com cache, ele aparece na hora e é atualizado quando a resposta chega.
   async carregar(raiz) {
     const estado = this._estado;

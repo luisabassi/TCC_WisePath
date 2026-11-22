@@ -1,4 +1,4 @@
-// Montagem de peças compartilhadas entre as telas. O HTML fica em views/compartilhado.html.
+// Montagem de peças compartilhadas entre as telas.
 const Componentes = {
   iniciais(nome) {
     return (nome || "")
@@ -14,7 +14,6 @@ const Componentes = {
     return Modelos.criar("compartilhado/painel-autenticacao");
   },
 
-  // `atributos` = atributos extras do botão (ex.: { id: "inicio-avatar", title: "Configurações" })
   avatar(perfil, tamanho = 40, atributos = {}) {
     const botao = Modelos.criar("compartilhado/avatar", { iniciais: this.iniciais(perfil.nome) }).firstElementChild;
     botao.style.width = `${tamanho}px`;
@@ -45,7 +44,7 @@ const Componentes = {
     elemento.replaceChildren();
   },
 
-  // Botões .eye-btn mostram/ocultam o campo apontado por data-alternar-para
+  // Botões 
   ativarAlternanciaSenha(raiz) {
     raiz.querySelectorAll(".eye-btn").forEach((botao) => {
       botao.addEventListener("click", () => {
@@ -57,7 +56,7 @@ const Componentes = {
     });
   },
 
-  // Converte **negrito** e quebras de linha em nós DOM; o texto nunca é interpretado como HTML
+  // Converte **negrito** e quebras de linha em nós DOM
   formatarMensagem(texto) {
     const fragmento = document.createDocumentFragment();
 

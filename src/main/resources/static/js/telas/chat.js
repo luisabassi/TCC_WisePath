@@ -9,13 +9,12 @@ function novaSessao(idChat = null) {
     carregandoChat: false,
     erro: null,
     idMensagemEmEdicao: null,
-    seq: 0, // identifica a sincronização mais recente (descarta respostas antigas)
+    seq: 0, // identifica a sincronização mais recente 
   };
 }
 
 const CAMPOS_DA_SESSAO = ["idChat", "mensagens", "etapa", "digitando", "carregandoChat", "erro", "idMensagemEmEdicao"];
 
-// Estende-se em chat-barra-lateral.js, chat-mensagens.js e chat-edicao.js
 Telas.chat = {
   _estado: {
     sessao: novaSessao(), // a conversa que está na tela
@@ -29,9 +28,9 @@ Telas.chat = {
     resultadosBusca: null, // null = ainda sem resultado do back-end para o termo atual
     buscaCarregando: false,
     erroBusca: null,
-    buscaSeq: 0, // identifica a busca mais recente (descarta respostas antigas)
+    buscaSeq: 0, // identifica a busca mais recente 
     buscaTemporizador: null, // debounce da digitação
-    chatParaAbrir: null, // pedido vindo de outra tela (ex.: "Ver conversa" no mapa mental)
+    chatParaAbrir: null, // pedido vindo de outra tela 
   },
 
   ehMobile() {
@@ -65,7 +64,7 @@ Telas.chat = {
     }
   },
 
-  // Logout: esquece conversas e lista do usuário anterior
+  // Logout
   reiniciar() {
     const estado = this._estado;
     estado.sessao = novaSessao();
@@ -250,7 +249,7 @@ Telas.chat = {
   },
 };
 
-// Expõe os campos da sessão atual diretamente em _estado (ex.: _estado.digitando)
+// Expõe os campos da sessão atual diretamente em _estado 
 CAMPOS_DA_SESSAO.forEach((campo) => {
   Object.defineProperty(Telas.chat._estado, campo, {
     get() {
