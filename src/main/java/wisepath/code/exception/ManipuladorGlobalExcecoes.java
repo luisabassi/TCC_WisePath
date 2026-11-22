@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
-/** Converte exceções em JSON {"mensagem": "..."} para o front-end exibir o erro real. */
 @RestControllerAdvice
 public class ManipuladorGlobalExcecoes {
 
@@ -25,7 +24,6 @@ public class ManipuladorGlobalExcecoes {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(corpo(excecao.getMessage()));
     }
 
-    // Ex.: "Data too long for column ..." ao salvar o resultado da IA
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Map<String, String>> tratarIntegridadeDeDados(DataIntegrityViolationException excecao) {
         registro.error("Falha de integridade ao salvar dados", excecao);
