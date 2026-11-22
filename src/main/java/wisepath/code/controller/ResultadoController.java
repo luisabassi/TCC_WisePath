@@ -18,7 +18,7 @@ import wisepath.code.dto.ResultadoDTO;
 import wisepath.code.entity.Chat;
 import wisepath.code.entity.Resultado;
 import wisepath.code.entity.Usuario;
-import wisepath.code.service.ChatLockService;
+import wisepath.code.service.FilaChatService;
 import wisepath.code.service.ChatService;
 import wisepath.code.service.GeminiService;
 import wisepath.code.service.ResultadoService;
@@ -30,17 +30,17 @@ public class ResultadoController {
     private final ChatService chatService;
     private final GeminiService geminiService;
     private final ResultadoService resultadoService;
-    private final ChatLockService chatLockService;
+    private final FilaChatService filaChatService;
 
     public ResultadoController(ChatService chatService, 
         GeminiService geminiService, 
         ResultadoService resultadoService,
-        ChatLockService chatLockService) {
+        FilaChatService filaChatService) {
 
         this.chatService = chatService;
         this.geminiService = geminiService;
         this.resultadoService = resultadoService;
-        this.chatLockService = chatLockService;
+        this.filaChatService = filaChatService;
     }
 
     @PostMapping 
@@ -49,7 +49,7 @@ public class ResultadoController {
         Chat chat = chatService.buscarChatDoUsuario(idChat, usuarioLogado.getIdUsuario());
 
         // na mesma fila das mensagens do chat: a análise lê o histórico inteiro
-        return chatLockService.executar(idChat, () -> {
+        return filaChatService.executar(idChat, () -> {
             AnaliseIADTO analise = geminiService.analisarChat(chat);
 
             Resultado resultado = resultadoService.gerarResultado(
@@ -59,7 +59,7 @@ public class ResultadoController {
                     analise.profissoes()
             );
 
-            return ResponseEntity.ok(ResultadoDTO.fromEntity(resultado));
+            return ResponseEntity.ok(ResultadoDTO.deEntidade(resultado));
         });
     }
 
@@ -70,7 +70,7 @@ public class ResultadoController {
         Resultado resultado = resultadoService.buscarResultadoDoUsuario(idResultado, usuarioLogado.getIdUsuario());
         garantirResultadoPertenceAoChat(resultado, idChat);
 
-        return ResponseEntity.ok(ResultadoDTO.fromEntity(resultado));
+        return ResponseEntity.ok(ResultadoDTO.deEntidade(resultado));
     }
 
     @GetMapping
@@ -80,7 +80,7 @@ public class ResultadoController {
  
         List<ResultadoDTO> resultados = resultadoService.listarPorChat(idChat)
                 .stream()
-                .map(ResultadoDTO::fromEntity)
+                .map(ResultadoDTO::deEntidade)
                 .toList();
  
         return ResponseEntity.ok(resultados);

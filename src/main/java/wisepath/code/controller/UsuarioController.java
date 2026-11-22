@@ -18,67 +18,62 @@ import org.springframework.web.server.ResponseStatusException;
 import jakarta.validation.Valid;
 import wisepath.code.dto.AtualizarUsuarioDTO;
 import wisepath.code.dto.LoginDTO;
-import wisepath.code.dto.LoginResponseDTO;
+import wisepath.code.dto.LoginRespostaDTO;
 import wisepath.code.dto.UsuarioDTO;
-import wisepath.code.dto.UsuarioResponseDTO;
+import wisepath.code.dto.UsuarioRespostaDTO;
 import wisepath.code.entity.Usuario;
 import wisepath.code.security.JwtService;
 import wisepath.code.service.UsuarioService;
 
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/usuarios")
 public class UsuarioController {
-    private final UsuarioService usuarioService;  
+    private final UsuarioService usuarioService;
     private final JwtService jwtService;
 
-    public UsuarioController(UsuarioService usuarioService, JwtService jwtService){
+    public UsuarioController(UsuarioService usuarioService, JwtService jwtService) {
         this.usuarioService = usuarioService;
         this.jwtService = jwtService;
     }
 
     @PostMapping
-    public ResponseEntity<UsuarioResponseDTO> cadastrar (@RequestBody
-         @Valid UsuarioDTO dto){
-        Usuario usuario = new Usuario(); 
+    public ResponseEntity<UsuarioRespostaDTO> cadastrar(@RequestBody @Valid UsuarioDTO dto) {
+        Usuario usuario = new Usuario();
         usuario.setNome(dto.nome());
         usuario.setEmail(dto.email());
         usuario.setSenha(dto.senha());
 
         Usuario usuarioCadastrado = usuarioService.cadastrar(usuario);
 
-        URI uri = URI.create("/users/" + usuarioCadastrado.getIdUsuario());
-        // URI -> serve para representar e manipular endereços de recursos na web ou em APIs
-        return ResponseEntity.created(uri).body
-        (UsuarioResponseDTO.fromEntity(usuarioCadastrado));
-        //Status 201 (usuário foi criado) e depois diz o endereço desse recurso
-        //O Body entrega os dados do que foi criado
+        URI uri = URI.create("/usuarios/" + usuarioCadastrado.getIdUsuario());
+        return ResponseEntity.created(uri).body(UsuarioRespostaDTO.deEntidade(usuarioCadastrado));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> autenticar(@RequestBody @Valid LoginDTO dto){
+    public ResponseEntity<LoginRespostaDTO> autenticar(@RequestBody @Valid LoginDTO dto){
         Usuario usuario = usuarioService.autenticar(dto.email(), dto.senha());
         String token = jwtService.gerarToken(usuario.getIdUsuario(), usuario.getEmail());
-        return ResponseEntity.ok(LoginResponseDTO.of(usuario, token));
+        return ResponseEntity.ok(LoginRespostaDTO.criar(usuario, token));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UsuarioResponseDTO> buscarPorID(@AuthenticationPrincipal Usuario usuarioLogado,
+    public ResponseEntity<UsuarioRespostaDTO> buscarPorId(@AuthenticationPrincipal Usuario usuarioLogado,
         @PathVariable Long id){
         
         verificarProprioUsuario(id, usuarioLogado);
         Usuario usuario = usuarioService.buscarPorId(id);
-        return ResponseEntity.ok(UsuarioResponseDTO.fromEntity(usuario));
+        return ResponseEntity.ok(UsuarioRespostaDTO.deEntidade(usuario));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UsuarioResponseDTO> atualizarPerfil(@AuthenticationPrincipal Usuario usuarioLogado,
+    public ResponseEntity<UsuarioRespostaDTO> atualizarPerfil(@AuthenticationPrincipal Usuario usuarioLogado,
         @PathVariable Long id, @RequestBody @Valid AtualizarUsuarioDTO dto){
 
         verificarProprioUsuario(id, usuarioLogado);
         Usuario usuarioAtualizado = usuarioService.atualizarPerfil(id,
              dto.nome(), dto.email(), dto.senha());
-        return ResponseEntity.ok(UsuarioResponseDTO.fromEntity(usuarioAtualizado));
+        return ResponseEntity.ok(UsuarioRespostaDTO.deEntidade(usuarioAtualizado));
     }
 
     @DeleteMapping("/{id}")

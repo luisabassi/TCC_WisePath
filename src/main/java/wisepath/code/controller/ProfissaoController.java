@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import wisepath.code.dto.ProfissaoDTO;
-import wisepath.code.dto.ProfissaoResponseDTO;
+import wisepath.code.dto.ProfissaoRespostaDTO;
 import wisepath.code.entity.Resultado;
 import wisepath.code.entity.Usuario;
 import wisepath.code.service.ProfissaoService;
@@ -32,45 +32,45 @@ public class ProfissaoController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ProfissaoResponseDTO>> listarTodos() {
-        List<ProfissaoResponseDTO> profissoes = profissaoService.listarTodos()
+    public ResponseEntity<List<ProfissaoRespostaDTO>> listarTodos() {
+        List<ProfissaoRespostaDTO> profissoes = profissaoService.listarTodos()
                 .stream()
-                .map(ProfissaoResponseDTO::fromEntity)
+                .map(ProfissaoRespostaDTO::deEntidade)
                 .toList();
         return ResponseEntity.ok(profissoes);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProfissaoResponseDTO> buscarPorId(@PathVariable Long id) {
-        return ResponseEntity.ok(ProfissaoResponseDTO.fromEntity(
+    public ResponseEntity<ProfissaoRespostaDTO> buscarPorId(@PathVariable Long id) {
+        return ResponseEntity.ok(ProfissaoRespostaDTO.deEntidade(
             profissaoService.buscarPorId(id)));
     }
 
     @GetMapping("/busca")
-    public ResponseEntity<List<ProfissaoResponseDTO>> buscarPorNome(@RequestParam String nome) {
-        List<ProfissaoResponseDTO> profissoes = profissaoService.buscarPorNome(nome)
+    public ResponseEntity<List<ProfissaoRespostaDTO>> buscarPorNome(@RequestParam String nome) {
+        List<ProfissaoRespostaDTO> profissoes = profissaoService.buscarPorNome(nome)
                 .stream()
-                .map(ProfissaoResponseDTO::fromEntity)
+                .map(ProfissaoRespostaDTO::deEntidade)
                 .toList();
         return ResponseEntity.ok(profissoes);
     }
 
     @GetMapping("/resultado/{idResultado}")
-    public ResponseEntity<List<ProfissaoResponseDTO>> listarPorResultado(
+    public ResponseEntity<List<ProfissaoRespostaDTO>> listarPorResultado(
         @AuthenticationPrincipal Usuario usuarioLogado,
         @PathVariable Long idResultado) {
         Resultado resultado = resultadoService.buscarResultadoDoUsuario(idResultado, usuarioLogado.getIdUsuario());
-        List<ProfissaoResponseDTO> profissoes = resultado.getProfissoes()
+        List<ProfissaoRespostaDTO> profissoes = resultado.getProfissoes()
                 .stream()
-                .map(ProfissaoResponseDTO::fromEntity)
+                .map(ProfissaoRespostaDTO::deEntidade)
                 .toList();
         return ResponseEntity.ok(profissoes);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProfissaoResponseDTO> atualizar(@PathVariable Long id,
+    public ResponseEntity<ProfissaoRespostaDTO> atualizar(@PathVariable Long id,
         @RequestBody @Valid ProfissaoDTO dto) {
-        return ResponseEntity.ok(ProfissaoResponseDTO.fromEntity(
+        return ResponseEntity.ok(ProfissaoRespostaDTO.deEntidade(
             profissaoService.atualizarProfissao(
                 id, dto.descricao(),
                 dto.mediaSalarial(),

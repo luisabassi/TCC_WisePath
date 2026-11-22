@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import wisepath.code.dto.EditarMensagemDTO;
-import wisepath.code.dto.MensagemResponseDTO;
+import wisepath.code.dto.MensagemRespostaDTO;
 import wisepath.code.dto.NovaMensagemDTO;
 import wisepath.code.entity.Chat;
 import wisepath.code.entity.Mensagem;
 import wisepath.code.entity.Usuario;
-import wisepath.code.service.ChatLockService;
+import wisepath.code.service.FilaChatService;
 import wisepath.code.service.ChatService;
 import wisepath.code.service.GeminiService;
 import wisepath.code.service.MensagemService;
@@ -32,28 +32,28 @@ public class MensagemController {
     private final MensagemService mensagemService;
     private final ChatService chatService;
     private final GeminiService geminiService;
-    private final ChatLockService chatLockService;
+    private final FilaChatService filaChatService;
 
     public MensagemController(MensagemService mensagemService, ChatService chatService,
-            GeminiService geminiService, ChatLockService chatLockService) {
+            GeminiService geminiService, FilaChatService filaChatService) {
         this.mensagemService = mensagemService;
         this.chatService = chatService;
         this.geminiService = geminiService;
-        this.chatLockService = chatLockService;
+        this.filaChatService = filaChatService;
     }
 
     @PostMapping
-    public ResponseEntity<List<MensagemResponseDTO>> enviarMensagem(
+    public ResponseEntity<List<MensagemRespostaDTO>> enviarMensagem(
             @AuthenticationPrincipal Usuario usuarioLogado,
             @PathVariable Long idChat,
             @RequestBody @Valid NovaMensagemDTO dto) {
 
         Chat chat = chatService.buscarChatDoUsuario(idChat, usuarioLogado.getIdUsuario());
 
-        return chatLockService.executar(idChat, () -> {
+        return filaChatService.executar(idChat, () -> {
             mensagemService.garantirHistoricoAtualizado(idChat, dto.ultimaMensagemId());
 
-            // A IA responde primeiro: se ela falhar, nada foi gravado no banco.
+            // A IA responde antes de gravar: se ela falhar, o banco fica intacto
             List<Mensagem> historico = mensagemService.historicoComNovaMensagem(idChat, dto.conteudo());
             String textoResposta = geminiService.responderMensagem(historico);
 
@@ -61,13 +61,12 @@ public class MensagemController {
             Mensagem mensagemBot = salvas.get(1);
 
             URI uri = URI.create("/chats/" + idChat + "/mensagens/" + mensagemBot.getIdMensagem());
-            return ResponseEntity.created(uri).body(salvas.stream().map(MensagemResponseDTO::fromEntity).toList());
+            return ResponseEntity.created(uri).body(salvas.stream().map(MensagemRespostaDTO::deEntidade).toList());
         });
     }
 
-    // Edita uma mensagem do usuário, apaga tudo que veio depois dela e devolve
     @PutMapping("/{idMensagem}")
-    public ResponseEntity<List<MensagemResponseDTO>> editarMensagem(
+    public ResponseEntity<List<MensagemRespostaDTO>> editarMensagem(
             @AuthenticationPrincipal Usuario usuarioLogado,
             @PathVariable Long idChat,
             @PathVariable Long idMensagem,
@@ -75,19 +74,18 @@ public class MensagemController {
 
         chatService.buscarChatDoUsuario(idChat, usuarioLogado.getIdUsuario());
 
-        return chatLockService.executar(idChat, () -> {
+        return filaChatService.executar(idChat, () -> {
             mensagemService.buscarMensagemDoUsuario(idChat, idMensagem);
 
-            // A IA responde primeiro: se ela falhar, nada foi alterado no banco.
+            // A IA responde antes de gravar: se ela falhar, o banco fica intacto
             List<Mensagem> historico = mensagemService.historicoComEdicao(idChat, idMensagem, dto.conteudo());
             String textoResposta = geminiService.responderMensagem(historico);
 
             List<Mensagem> salvas = mensagemService.editarMensagem(idChat, idMensagem, dto.conteudo(), textoResposta);
-            return ResponseEntity.ok(salvas.stream().map(MensagemResponseDTO::fromEntity).toList());
+            return ResponseEntity.ok(salvas.stream().map(MensagemRespostaDTO::deEntidade).toList());
         });
     }
 
-    // Exclui a mensagem selecionada e todas as posteriores.
     @DeleteMapping("/{idMensagem}")
     public ResponseEntity<Void> deletarMensagem(
             @AuthenticationPrincipal Usuario usuarioLogado,
@@ -95,7 +93,7 @@ public class MensagemController {
             @PathVariable Long idMensagem) {
 
         chatService.buscarChatDoUsuario(idChat, usuarioLogado.getIdUsuario());
-        chatLockService.executarSemRetorno(idChat, () -> mensagemService.deletarMensagem(idChat, idMensagem));
+        filaChatService.executarSemRetorno(idChat, () -> mensagemService.deletarMensagem(idChat, idMensagem));
         return ResponseEntity.noContent().build();
     }
 

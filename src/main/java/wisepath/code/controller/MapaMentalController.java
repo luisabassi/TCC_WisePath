@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import jakarta.validation.Valid;
 import wisepath.code.dto.MapaMentalDTO;
-import wisepath.code.dto.MapaMentalResponseDTO;
+import wisepath.code.dto.MapaMentalRespostaDTO;
 import wisepath.code.dto.MapaMentalResumoDTO;
 import wisepath.code.entity.Resultado;
 import wisepath.code.entity.Usuario;
@@ -36,23 +36,23 @@ public class MapaMentalController {
     public ResponseEntity<List<MapaMentalResumoDTO>> listar(@AuthenticationPrincipal Usuario usuarioLogado) {
         List<MapaMentalResumoDTO> mapas = resultadoService.listarPorUsuario(usuarioLogado.getIdUsuario())
                 .stream()
-                .map(MapaMentalResumoDTO::fromEntity)
+                .map(MapaMentalResumoDTO::deEntidade)
                 .toList();
         return ResponseEntity.ok(mapas);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MapaMentalResponseDTO> buscarPorId(@AuthenticationPrincipal Usuario usuarioLogado,
+    public ResponseEntity<MapaMentalRespostaDTO> buscarPorId(@AuthenticationPrincipal Usuario usuarioLogado,
             @PathVariable Long id) {
         resultadoService.buscarResultadoDoUsuarioPorMapaMental(id, usuarioLogado.getIdUsuario());
-        return ResponseEntity.ok(MapaMentalResponseDTO.fromEntity(mapaMentalService.buscarPorId(id)));
+        return ResponseEntity.ok(MapaMentalRespostaDTO.deEntidade(mapaMentalService.buscarPorId(id)));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MapaMentalResponseDTO> atualizar(@AuthenticationPrincipal Usuario usuarioLogado,
+    public ResponseEntity<MapaMentalRespostaDTO> atualizar(@AuthenticationPrincipal Usuario usuarioLogado,
             @PathVariable Long id, @RequestBody @Valid MapaMentalDTO dto) {
         resultadoService.buscarResultadoDoUsuarioPorMapaMental(id, usuarioLogado.getIdUsuario());
-        return ResponseEntity.ok(MapaMentalResponseDTO.fromEntity(
+        return ResponseEntity.ok(MapaMentalRespostaDTO.deEntidade(
                 mapaMentalService.atualizarMapaMental(id, dto.jsonMapa())));
     }
 
